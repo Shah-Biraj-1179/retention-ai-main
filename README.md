@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# AI-Driven Food Customer Retention System
 
 ## Project info
 
