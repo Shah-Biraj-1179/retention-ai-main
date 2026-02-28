@@ -1,0 +1,54 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark blue background circle -->
+  <circle cx="32" cy="32" r="32" fill="#1a2e4a"/>
+
+  <!-- Outer plate ring -->
+  <circle cx="32" cy="34" r="22" fill="none" stroke="white" stroke-width="2.2"/>
+  <!-- Inner plate ring -->
+  <circle cx="32" cy="34" r="16" fill="none" stroke="white" stroke-width="1.4"/>
+
+  <!-- Neural network center node -->
+  <circle cx="32" cy="34" r="4" fill="#3a9bd5"/>
+  <!-- Surrounding network nodes -->
+  <circle cx="32" cy="26" r="2.2" fill="#3a9bd5"/>
+  <circle cx="39" cy="30" r="2.2" fill="#3a9bd5"/>
+  <circle cx="39" cy="38" r="2.2" fill="#3a9bd5"/>
+  <circle cx="32" cy="42" r="2.2" fill="#3a9bd5"/>
+  <circle cx="25" cy="38" r="2.2" fill="#3a9bd5"/>
+  <circle cx="25" cy="30" r="2.2" fill="#3a9bd5"/>
+
+  <!-- Network connections (spokes) -->
+  <line x1="32" y1="30" x2="32" y2="28.2" stroke="white" stroke-width="1.2"/>
+  <line x1="35.5" y1="32" x2="36.8" y2="31.2" stroke="white" stroke-width="1.2"/>
+  <line x1="35.5" y1="36" x2="36.8" y2="36.8" stroke="white" stroke-width="1.2"/>
+  <line x1="32" y1="38" x2="32" y2="39.8" stroke="white" stroke-width="1.2"/>
+  <line x1="28.5" y1="36" x2="27.2" y2="36.8" stroke="white" stroke-width="1.2"/>
+  <line x1="28.5" y1="32" x2="27.2" y2="31.2" stroke="white" stroke-width="1.2"/>
+
+  <!-- Outer connections between nodes -->
+  <line x1="32" y1="26" x2="39" y2="30" stroke="white" stroke-width="1"/>
+  <line x1="39" y1="30" x2="39" y2="38" stroke="white" stroke-width="1"/>
+  <line x1="39" y1="38" x2="32" y2="42" stroke="white" stroke-width="1"/>
+  <line x1="32" y1="42" x2="25" y2="38" stroke="white" stroke-width="1"/>
+  <line x1="25" y1="38" x2="25" y2="30" stroke="white" stroke-width="1"/>
+  <line x1="25" y1="30" x2="32" y2="26" stroke="white" stroke-width="1"/>
+
+  <!-- Fork (right side) -->
+  <line x1="50" y1="20" x2="50" y2="42" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="48" y1="20" x2="48" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="50" y1="20" x2="50" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="52" y1="20" x2="52" y2="27" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M48 27 Q50 31 52 27" fill="none" stroke="white" stroke-width="1.2"/>
+
+  <!-- Spoon (left side) -->
+  <line x1="14" y1="30" x2="14" y2="44" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+  <ellipse cx="14" cy="24" rx="3.5" ry="5" fill="none" stroke="white" stroke-width="1.6"/>
+
+  <!-- Steam lines above spoon -->
+  <path d="M11 15 Q12 12 11 10" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M14 14 Q15 11 14 9" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M17 15 Q18 12 17 10" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Heart (top right) -->
+  <path d="M44 11 C44 9.5 42.5 8 41 9 C39.5 8 38 9.5 38 11 C38 13 41 16 41 16 C41 16 44 13 44 11Z" fill="white"/>
+</svg>
