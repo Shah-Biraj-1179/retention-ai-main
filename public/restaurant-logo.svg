@@ -1,0 +1,45 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer circle border -->
+  <circle cx="100" cy="100" r="96" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#fff" stroke-width="2"/>
+  <circle cx="100" cy="100" r="84" fill="none" stroke="#fff" stroke-width="0.8"/>
+
+  <!-- Chef Hat -->
+  <!-- Hat brim -->
+  <rect x="65" y="72" width="70" height="10" rx="4" fill="white"/>
+  <!-- Hat body -->
+  <ellipse cx="100" cy="58" rx="28" ry="22" fill="white"/>
+  <!-- Hat puff top -->
+  <ellipse cx="100" cy="44" rx="18" ry="16" fill="white"/>
+
+  <!-- Crossed knife and whisk -->
+  <!-- Knife (left diagonal, top-left to bottom-right) -->
+  <g transform="rotate(-40, 100, 100)">
+    <!-- Knife blade -->
+    <rect x="94" y="82" width="6" height="38" rx="1" fill="white"/>
+    <!-- Knife handle -->
+    <rect x="93" y="120" width="8" height="16" rx="2" fill="#8B5E3C"/>
+    <rect x="93" y="118" width="8" height="4" rx="1" fill="#c8a86b"/>
+  </g>
+
+  <!-- Whisk (right diagonal) -->
+  <g transform="rotate(40, 100, 100)">
+    <!-- Whisk handle -->
+    <rect x="97" y="118" width="6" height="18" rx="3" fill="#8B5E3C"/>
+    <rect x="97" y="116" width="6" height="4" rx="1" fill="#c8a86b"/>
+    <!-- Whisk wires -->
+    <ellipse cx="100" cy="105" rx="6" ry="12" fill="none" stroke="white" stroke-width="1.8"/>
+    <ellipse cx="100" cy="105" rx="3" ry="12" fill="none" stroke="white" stroke-width="1.5"/>
+    <line x1="100" y1="93" x2="100" y2="117" stroke="white" stroke-width="1.5"/>
+  </g>
+
+  <!-- Decorative line under hat section -->
+  <line x1="55" y1="84" x2="145" y2="84" stroke="white" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- "Restaurant" text -->
+  <text x="100" y="125" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-style="italic" font-weight="bold" fill="white" letter-spacing="1">Restaurant</text>
+
+  <!-- Decorative swash lines under text -->
+  <path d="M52 133 Q100 140 148 133" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M60 136 Q100 142 140 136" fill="none" stroke="white" stroke-width="0.6" stroke-linecap="round"/>
+</svg>
