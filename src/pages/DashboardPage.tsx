@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [importStatus, setImportStatus] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [importedData, setImportedData] = useState<CustomerRecord[] | null>(null);
   const [activeTab, setActiveTab] = useState('eda');
   const [dataFilter, setDataFilter] = useState<'All' | 'Active' | 'Churned'>('All');
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -289,6 +290,7 @@ export default function DashboardPage() {
             if (cleaned.length === 0) throw new Error('No valid rows found');
             setData(cleaned);
             setStats(computeStats(cleaned));
+            setImportedData(cleaned);
             setImportStatus({ ok: true, msg: `✓ Loaded ${cleaned.length.toLocaleString()} records from "${file.name}"` });
           } catch (err) {
             setImportStatus({ ok: false, msg: `✗ Failed to parse CSV: ${err instanceof Error ? err.message : 'Unknown error'}` });
@@ -415,7 +417,7 @@ export default function DashboardPage() {
           <TabsList className="grid w-full grid-cols-3 max-w-md">
             <TabsTrigger value="eda">📊 EDA & Charts</TabsTrigger>
             <TabsTrigger value="predict">📈 Predict Churn</TabsTrigger>
-            <TabsTrigger value="data">📋 Raw Data</TabsTrigger>
+            <TabsTrigger value="data">📋 Dataset</TabsTrigger>
           </TabsList>
 
           <TabsContent value="eda">
@@ -430,7 +432,7 @@ export default function DashboardPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between flex-wrap gap-3">
-                  <CardTitle className="font-display">Customer Data</CardTitle>
+                  <CardTitle className="font-display">Imported Dataset</CardTitle>
                   <div className="flex items-center gap-2">
                     <input
                       ref={fileInputRef}
@@ -443,7 +445,7 @@ export default function DashboardPage() {
                       <Upload className="h-4 w-4" />
                       {importing ? 'Importing…' : 'Import CSV'}
                     </Button>
-                    {(['All', 'Active', 'Churned'] as const).map((f) => (
+                    {importedData && (['All', 'Active', 'Churned'] as const).map((f) => (
                       <button
                         key={f}
                         onClick={() => setDataFilter(f)}
@@ -460,26 +462,30 @@ export default function DashboardPage() {
                         {f}
                         {f !== 'All' && (
                           <span className="ml-1 opacity-70">
-                            ({f === 'Active' ? stats.activeCustomers.toLocaleString() : stats.inactiveCustomers.toLocaleString()})
+                            ({f === 'Active'
+                              ? importedData.filter(r => r.churned === 'Active').length.toLocaleString()
+                              : importedData.filter(r => r.churned !== 'Active').length.toLocaleString()})
                           </span>
                         )}
                       </button>
                     ))}
-                    {dataFilter !== 'All' && (
+                    {importedData && dataFilter !== 'All' && (
                       <button onClick={() => setDataFilter('All')} className="text-muted-foreground hover:text-foreground">
                         <X className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Showing first 1,000 of{' '}
-                  {dataFilter === 'All'
-                    ? data.length
-                    : data.filter((r) => r.churned === dataFilter).length}{' '}
-                  {dataFilter !== 'All' && <Badge variant="outline" className="ml-1 text-xs">{dataFilter}</Badge>}
-                  {' '}records
-                </p>
+                {importedData && (
+                  <p className="text-sm text-muted-foreground">
+                    Showing first 1,000 of{' '}
+                    {(dataFilter === 'All'
+                      ? importedData.length
+                      : importedData.filter((r) => r.churned === dataFilter).length).toLocaleString()}{' '}
+                    {dataFilter !== 'All' && <Badge variant="outline" className="ml-1 text-xs">{dataFilter}</Badge>}
+                    {' '}records
+                  </p>
+                )}
                 {importStatus && (
                   <div className={`mt-2 text-sm px-3 py-2 rounded-lg font-medium ${
                     importStatus.ok
@@ -491,40 +497,61 @@ export default function DashboardPage() {
                 )}
               </CardHeader>
               <CardContent>
-                <div className="overflow-auto max-h-[500px] rounded-lg border border-border">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted sticky top-0">
-                      <tr>
-                        {['ID', 'Gender', 'Age', 'City', 'Orders', 'Price (₹)', 'Rating', 'Status', 'Delivery'].map((h) => (
-                          <th key={h} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(dataFilter === 'All' ? data : data.filter((r) => r.churned === dataFilter))
-                        .slice(0, 1000)
-                        .map((row, i) => (
-                        <tr key={i} className="border-t border-border hover:bg-muted/50 transition-colors">
-                          <td className="px-3 py-2 whitespace-nowrap">{row.customer_id}</td>
-                          <td className="px-3 py-2">{row.gender}</td>
-                          <td className="px-3 py-2">{row.age}</td>
-                          <td className="px-3 py-2">{row.city}</td>
-                          <td className="px-3 py-2">{row.order_frequency}</td>
-                          <td className="px-3 py-2">₹{(row.price * 83).toFixed(0)}</td>
-                          <td className="px-3 py-2">{row.rating ?? '—'}</td>
-                          <td className="px-3 py-2">
-                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                              row.churned === 'Active' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
-                            }`}>
-                              {row.churned}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2 text-xs">{row.delivery_status}</td>
+                {!importedData ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+                    <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-display text-lg font-semibold">No dataset imported yet</p>
+                      <p className="text-sm text-muted-foreground mt-1">Import a CSV file to view and explore your data in table form</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="gap-2 mt-2"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={importing}
+                    >
+                      <Upload className="h-4 w-4" />
+                      {importing ? 'Importing…' : 'Import CSV File'}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="overflow-auto max-h-[500px] rounded-lg border border-border">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted sticky top-0">
+                        <tr>
+                          {['ID', 'Gender', 'Age', 'City', 'Orders', 'Price (₹)', 'Rating', 'Status', 'Delivery'].map((h) => (
+                            <th key={h} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">{h}</th>
+                          ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {(dataFilter === 'All' ? importedData : importedData.filter((r) => r.churned === dataFilter))
+                          .slice(0, 1000)
+                          .map((row, i) => (
+                          <tr key={i} className="border-t border-border hover:bg-muted/50 transition-colors">
+                            <td className="px-3 py-2 whitespace-nowrap">{row.customer_id}</td>
+                            <td className="px-3 py-2">{row.gender}</td>
+                            <td className="px-3 py-2">{row.age}</td>
+                            <td className="px-3 py-2">{row.city}</td>
+                            <td className="px-3 py-2">{row.order_frequency}</td>
+                            <td className="px-3 py-2">₹{(row.price * 83).toFixed(0)}</td>
+                            <td className="px-3 py-2">{row.rating ?? '—'}</td>
+                            <td className="px-3 py-2">
+                              <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                                row.churned === 'Active' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
+                              }`}>
+                                {row.churned}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 text-xs">{row.delivery_status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
