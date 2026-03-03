@@ -80,7 +80,7 @@ const stats = [
   { target: 92,   suffix: '%', label: 'Prediction Accuracy', link: '/dashboard' },
   { target: 30,   suffix: '%', label: 'Reduction in Churn',  link: '/dashboard' },
   { target: 20,   suffix: '%', label: 'Increase in Repeat Orders', link: '/dashboard' },
-  { target: 3,    suffix: '',  label: 'ML Models Integrated', link: '/dashboard' },
+  { target: 4,    suffix: '',  label: 'ML Models Integrated', link: '/dashboard' },
   { target: 24,   suffix: '/7', label: 'AI Chatbot Support',  link: '/chatbot' },
 ];
 
