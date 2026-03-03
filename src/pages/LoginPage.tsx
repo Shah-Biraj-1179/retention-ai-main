@@ -8,8 +8,20 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import emailjs from '@emailjs/browser';
 import { supabase } from '@/integrations/supabase/client';
 import logoImg from '@/assets/logo.png';
+
+// ── EmailJS config ──────────────────────────────────────────────────────────
+// 1. Sign up free at https://emailjs.com
+// 2. Add a Gmail service  → copy Service ID  → paste below
+// 3. Create an email template with variables: {{to_email}}, {{otp}}, {{app_name}}
+//    → copy Template ID → paste below
+// 4. Account → API Keys → copy Public Key → paste below
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // e.g. 'service_abc123'
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // e.g. 'template_xyz456'
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // e.g. 'aBcDeFgHiJkLmNoP'
+// ───────────────────────────────────────────────────────────────────────────
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -47,7 +59,7 @@ export default function LoginPage() {
     setTimeout(() => { setResetStep(1); setOtpCode(''); setNewPassword(''); setConfirmNewPassword(''); }, 300);
   };
 
-  // Step 1 → send password-reset email via Supabase (uses your configured SMTP)
+  // Step 1 → generate OTP client-side and send via EmailJS (real email, no backend)
   const handleSendOtp = async () => {
     if (!resetEmail) {
       toast({ title: 'Enter your email', variant: 'destructive' });
@@ -55,65 +67,68 @@ export default function LoginPage() {
     }
     setResetLoading(true);
     try {
-      // Try edge function first (Resend), fallback to Supabase auth
-      const res = await supabase.functions.invoke('send-reset-email', {
-        body: { email: resetEmail },
-      });
-      const data = res.data as { error?: string } | null;
-      if (!res.error && !data?.error) {
-        setResetStep(2);
-        toast({ title: 'Code sent! 📧', description: `A 6-digit code was sent to ${resetEmail}. Check your inbox and spam folder.` });
-        return;
-      }
-    } catch {
-      // fallthrough to Supabase auth reset
-    }
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      // Store OTP in sessionStorage with 10-min expiry
+      sessionStorage.setItem('reset_otp', JSON.stringify({
+        otp,
+        email: resetEmail,
+        expires: Date.now() + 10 * 60 * 1000,
+      }));
 
-    // Fallback: Supabase built-in reset (requires custom SMTP configured in dashboard)
-    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setResetLoading(false);
-    if (error) {
-      toast({ title: 'Failed to send email', description: error.message, variant: 'destructive' });
-      return;
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_email: resetEmail,
+          otp,
+          app_name: 'FoodRetainAI',
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+
+      setResetStep(2);
+      toast({ title: 'Code sent! 📧', description: `A 6-digit code was sent to ${resetEmail}. Check your inbox and spam folder.` });
+    } catch (err: unknown) {
+      const msg = (err as { text?: string })?.text || (err as Error)?.message || 'Unknown error';
+      toast({
+        title: 'Failed to send email',
+        description: `EmailJS error: ${msg}. Make sure EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID and EMAILJS_PUBLIC_KEY are configured in LoginPage.tsx`,
+        variant: 'destructive',
+      });
+    } finally {
+      setResetLoading(false);
     }
-    setResetStep(2);
-    toast({ title: 'Reset email sent! 📧', description: `Check ${resetEmail} for a password reset link or code. Also check spam folder.` });
   };
 
-  // Step 2 → verify OTP (try custom edge function first, then Supabase recovery)
+  // Step 2 → verify against OTP stored in sessionStorage
   const handleVerifyOtp = async () => {
     if (otpCode.length !== 6) {
       toast({ title: 'Enter the 6-digit code', variant: 'destructive' });
       return;
     }
-    setResetLoading(true);
-    try {
-      const res = await supabase.functions.invoke('verify-reset-otp', {
-        body: { email: resetEmail, otp: otpCode },
-      });
-      const data = res.data as { error?: string } | null;
-      if (!res.error && !data?.error) {
-        setResetStep(3);
-        setResetLoading(false);
-        return;
-      }
-    } catch {
-      // fallthrough
-    }
-
-    // Fallback: Supabase built-in OTP verification
-    const { error } = await supabase.auth.verifyOtp({
-      email: resetEmail,
-      token: otpCode,
-      type: 'recovery',
-    });
-    setResetLoading(false);
-    if (error) {
-      toast({ title: 'Invalid or expired code', description: error.message, variant: 'destructive' });
+    const raw = sessionStorage.getItem('reset_otp');
+    if (!raw) {
+      toast({ title: 'Session expired', description: 'Please request a new code.', variant: 'destructive' });
+      setResetStep(1);
       return;
     }
+    const { otp, email, expires } = JSON.parse(raw) as { otp: string; email: string; expires: number };
+    if (Date.now() > expires) {
+      sessionStorage.removeItem('reset_otp');
+      toast({ title: 'Code expired', description: 'Please request a new code.', variant: 'destructive' });
+      setResetStep(1);
+      return;
+    }
+    if (email !== resetEmail) {
+      toast({ title: 'Email mismatch', description: 'Please restart the process.', variant: 'destructive' });
+      setResetStep(1);
+      return;
+    }
+    if (otp !== otpCode) {
+      toast({ title: 'Incorrect code', description: 'Double-check the code in your email.', variant: 'destructive' });
+      return;
+    }
+    sessionStorage.removeItem('reset_otp');
     setResetStep(3);
   };
 
