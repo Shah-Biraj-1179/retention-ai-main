@@ -446,7 +446,7 @@ export default function HomePage() {
             </div>
 
             {/* Contact */}
-            <div>
+            <div id="contact-us">
               <h4 className="font-semibold text-sm mb-4">Contact</h4>
               <ul className="space-y-3">
                 <li>
