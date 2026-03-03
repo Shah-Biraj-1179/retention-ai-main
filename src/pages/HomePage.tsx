@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { ArrowRight, BarChart3, Brain, Mail, MessageSquare, Shield, TrendingUp, Users, Github, Linkedin, ExternalLink, GitBranch, TreeDeciduous, Layers, Zap, X, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, BarChart3, Brain, Mail, MessageSquare, Shield, TrendingUp, Users, Github, Linkedin, ExternalLink, GitBranch, TreeDeciduous, Layers, Zap, X, CheckCircle2, ChevronRight, Database, Target, Sparkles, Clock, Award, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import logoImg from '@/assets/logo.png';
 import heroImg from '@/assets/hero-bg.jpg';
@@ -25,12 +25,54 @@ function useCounter(target: number, duration = 1800) {
 }
 
 const features = [
-  { icon: BarChart3, title: 'Customer Analytics', desc: 'Deep EDA with interactive visualizations of customer behavior patterns.', link: '/dashboard', section: 'charts' },
-  { icon: Brain, title: 'ML Churn Prediction', desc: 'Random Forest & XGBoost models predict at-risk customers accurately.', link: '/dashboard', section: 'prediction' },
-  { icon: MessageSquare, title: 'AI Retention Chatbot', desc: 'Gemini-powered chatbot re-engages churned customers with offers.', link: '/chatbot', section: '' },
-  { icon: TrendingUp, title: 'Real-Time Monitoring', desc: 'Track churn rates and retention metrics on a live dashboard.', link: '/dashboard', section: 'overview' },
-  { icon: Users, title: 'Customer Segmentation', desc: 'Segment customers by city, age, spending, and order frequency.', link: '/dashboard', section: 'charts' },
-  { icon: Shield, title: 'Retention Strategies', desc: 'AI-driven discount offers, loyalty rewards, and complaint resolution.', link: '/chatbot', section: '' },
+  {
+    icon: BarChart3,
+    title: 'Interactive Analytics Dashboard',
+    desc: 'Explore deep EDA with 10+ interactive charts — churn by city, age, spend, rating, and order frequency. Every insight is one click away.',
+    link: '/dashboard',
+    section: 'charts',
+    badge: 'Analytics',
+  },
+  {
+    icon: Brain,
+    title: 'ML-Powered Churn Prediction',
+    desc: 'Enter any customer profile and get an instant churn probability score from our best-performing Random Forest model (92% accuracy).',
+    link: '/dashboard',
+    section: 'prediction',
+    badge: 'AI / ML',
+  },
+  {
+    icon: MessageSquare,
+    title: 'AI Retention Chatbot',
+    desc: 'Gemini-powered chatbot that responds to customer queries, offers personalized discounts, and resolves complaints automatically.',
+    link: '/chatbot',
+    section: '',
+    badge: 'Chatbot',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Live Churn Monitoring',
+    desc: 'Monitor active vs churned customer counts, churn rates, and spend metrics in real-time on a centralized dashboard designed for action.',
+    link: '/dashboard',
+    section: 'overview',
+    badge: 'Monitoring',
+  },
+  {
+    icon: Users,
+    title: 'Smart Customer Segmentation',
+    desc: 'Slice your customer base by city, age group, payment method, and order frequency. Identify your highest-risk segments instantly.',
+    link: '/dashboard',
+    section: 'charts',
+    badge: 'Segmentation',
+  },
+  {
+    icon: Shield,
+    title: 'Automated Retention Actions',
+    desc: 'AI-driven playbooks that trigger discount offers, loyalty point boosts, and re-engagement emails automatically when churn risk is detected.',
+    link: '/chatbot',
+    section: '',
+    badge: 'Automation',
+  },
 ];
 
 const stats = [
@@ -199,6 +241,7 @@ export default function HomePage() {
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
+            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             <a href="#stats" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
             <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</a>
             <a href="#contact-us" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact Us</a>
@@ -211,37 +254,146 @@ export default function HomePage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-24 pb-20 overflow-hidden">
+      <section className="relative pt-24 pb-16 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <img src={heroImg} alt="" className="w-full h-full object-cover" />
         </div>
+        {/* Background gradient blobs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-10 w-80 h-80 bg-orange-400/10 rounded-full blur-3xl" />
+
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <Brain className="h-4 w-4" />
-              AI & Machine Learning Powered
-            </div>
-            <h1 className="text-4xl md:text-6xl font-display font-bold mb-6 leading-tight">
-              <span className="text-gradient">AI-Driven</span> Food Customer{' '}
-              <span className="text-gradient">Retention</span>
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Predict customer churn using ML models, visualize behavioral data, and re-engage at-risk customers with an AI-powered chatbot — all in one intelligent dashboard.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="gap-2" onClick={() => navigate('/login')}>
-                Launch Dashboard <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
-                Explore Features
-              </Button>
-            </div>
-          </motion.div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            {/* Left: Text */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Sparkles className="h-3.5 w-3.5" />
+                Built with ML + Gemini AI
+              </div>
+              <h1 className="text-4xl md:text-5xl xl:text-6xl font-display font-bold mb-5 leading-tight">
+                Stop Losing{' '}
+                <span className="text-gradient">Food Delivery</span>{' '}
+                Customers
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed">
+                FoodRetainAI identifies at-risk customers before they leave — using machine learning models trained on 6,000+ real behavioral records, paired with an AI chatbot that re-engages them automatically.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 mb-10">
+                <Button size="lg" className="gap-2 text-base px-6" onClick={() => navigate('/login')}>
+                  Get Started Free <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button size="lg" variant="outline" className="gap-2 text-base" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
+                  <PlayCircle className="h-4 w-4" /> See How It Works
+                </Button>
+              </div>
+              {/* Mini trust bar */}
+              <div className="flex items-center gap-6 flex-wrap">
+                {[
+                  { icon: Award, text: '92% ML Accuracy' },
+                  { icon: Users, text: '6,000+ Records' },
+                  { icon: Clock, text: 'Instant Predictions' },
+                ].map((item) => (
+                  <div key={item.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <item.icon className="h-4 w-4 text-primary" />
+                    <span>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right: Dashboard Preview Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="hidden lg:block"
+            >
+              <div className="relative">
+                {/* Floating card: Churn Alert */}
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
+                  className="absolute -top-5 -left-6 z-10 bg-card border border-border rounded-xl px-4 py-3 shadow-elevated flex items-center gap-3"
+                >
+                  <div className="h-8 w-8 rounded-lg bg-destructive/15 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-destructive" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold">Churn Alert</p>
+                    <p className="text-xs text-muted-foreground">142 customers at risk</p>
+                  </div>
+                </motion.div>
+
+                {/* Floating card: Prediction */}
+                <motion.div
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 0.5 }}
+                  className="absolute -bottom-4 -right-6 z-10 bg-card border border-border rounded-xl px-4 py-3 shadow-elevated flex items-center gap-3"
+                >
+                  <div className="h-8 w-8 rounded-lg bg-success/15 flex items-center justify-center">
+                    <Brain className="h-4 w-4 text-success" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold">ML Prediction</p>
+                    <p className="text-xs text-muted-foreground">Accuracy: 92%</p>
+                  </div>
+                </motion.div>
+
+                {/* Main dashboard mock */}
+                <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+                  {/* Top bar */}
+                  <div className="bg-muted/50 border-b border-border px-4 py-3 flex items-center gap-2">
+                    <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
+                    <span className="ml-3 text-xs text-muted-foreground font-mono">FoodRetainAI Dashboard</span>
+                  </div>
+                  {/* Stat mini cards */}
+                  <div className="grid grid-cols-2 gap-3 p-4">
+                    {[
+                      { label: 'Total Customers', value: '6,000', color: 'text-primary', bg: 'bg-primary/10' },
+                      { label: 'Active Retained', value: '3,016', color: 'text-success', bg: 'bg-success/10' },
+                      { label: 'Churned', value: '2,984', color: 'text-destructive', bg: 'bg-destructive/10' },
+                      { label: 'Churn Rate', value: '49.7%', color: 'text-warning', bg: 'bg-warning/10' },
+                    ].map((s) => (
+                      <div key={s.label} className={`${s.bg} rounded-xl p-3`}>
+                        <p className="text-xs text-muted-foreground">{s.label}</p>
+                        <p className={`text-lg font-display font-bold ${s.color}`}>{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Fake chart bars */}
+                  <div className="px-4 pb-4">
+                    <p className="text-xs text-muted-foreground mb-2 font-medium">Churn by City</p>
+                    <div className="space-y-1.5">
+                      {[
+                        { city: 'Mumbai', pct: 82, color: 'bg-primary' },
+                        { city: 'Delhi', pct: 68, color: 'bg-orange-400' },
+                        { city: 'Bangalore', pct: 54, color: 'bg-purple-500' },
+                        { city: 'Chennai', pct: 40, color: 'bg-success' },
+                      ].map((row) => (
+                        <div key={row.city} className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground w-16 shrink-0">{row.city}</span>
+                          <div className="flex-1 bg-muted rounded-full h-2">
+                            <motion.div
+                              className={`h-2 rounded-full ${row.color}`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${row.pct}%` }}
+                              transition={{ duration: 1.2, delay: 0.8 }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -256,12 +408,79 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              <Target className="h-3.5 w-3.5" /> Simple 3-Step Process
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">How FoodRetainAI Works</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">From raw customer data to actionable retention strategies — in three simple steps.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-10 left-1/3 right-1/3 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
+            {[
+              {
+                step: '01',
+                icon: Database,
+                title: 'Load & Explore Your Data',
+                desc: 'The platform ingests 6,000+ food delivery customer records and instantly generates interactive charts — churn by city, spend distribution, rating trends, and more.',
+                cta: 'View Analytics',
+                href: '/dashboard',
+              },
+              {
+                step: '02',
+                icon: Brain,
+                title: 'Predict Churn with ML',
+                desc: 'Enter a customer profile (orders, rating, spend, loyalty points) and get an instant churn probability score powered by our Random Forest model with 92% accuracy.',
+                cta: 'Try Prediction',
+                href: '/dashboard',
+              },
+              {
+                step: '03',
+                icon: MessageSquare,
+                title: 'Re-engage with AI Chatbot',
+                desc: 'Our Gemini-powered chatbot automatically offers personalised discounts, resolves delivery complaints, and sends retention nudges to at-risk customers.',
+                cta: 'Open Chatbot',
+                href: '/chatbot',
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.15 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col items-center text-center p-7 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-elevated transition-all group"
+              >
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center shadow-md">
+                  {item.step}
+                </div>
+                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 mt-4 group-hover:bg-primary/20 transition-colors">
+                  <item.icon className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-display font-bold text-base mb-3">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{item.desc}</p>
+                <button
+                  onClick={() => navigate(item.href)}
+                  className="flex items-center gap-1 text-primary text-sm font-medium hover:gap-2 transition-all"
+                >
+                  {item.cta} <ChevronRight className="h-4 w-4" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" className="py-20">
         <div className="container mx-auto px-6">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">Powerful Features</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Everything you need to understand, predict, and prevent customer churn.</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">Everything You Need to Retain Customers</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">A complete intelligence platform — from data exploration to automated retention actions.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
@@ -274,12 +493,15 @@ export default function HomePage() {
                 className="group p-6 rounded-xl bg-card shadow-card hover:shadow-elevated transition-all duration-300 border border-border hover:border-primary/30 cursor-pointer"
                 onClick={() => navigate(f.section ? `${f.link}?section=${f.section}` : f.link)}
               >
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <f.icon className="h-6 w-6 text-primary" />
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <f.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border">{f.badge}</span>
                 </div>
-                <h3 className="font-display font-semibold text-lg mb-2">{f.title}</h3>
-                <p className="text-sm text-muted-foreground">{f.desc}</p>
-                <div className="mt-3 flex items-center gap-1 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <h3 className="font-display font-semibold text-base mb-2">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                <div className="mt-4 flex items-center gap-1 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ArrowRight className="h-3 w-3" />
                 </div>
               </motion.div>
@@ -342,74 +564,147 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About */}
+      {/* About / Why Us */}
       <section id="about" className="py-20 bg-background">
         <div className="container mx-auto px-6">
-          {/* About content */}
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">About FoodRetainAI</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                An intelligent, data-driven platform that empowers food-tech businesses to understand their customers, predict churn before it happens, and take action to retain them.
-              </p>
+          <div className="max-w-6xl mx-auto">
+
+            {/* Main about header */}
+            <div className="grid lg:grid-cols-2 gap-14 items-center mb-20">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                  <Brain className="h-3.5 w-3.5" /> About This Project
+                </div>
+                <h2 className="text-3xl md:text-4xl font-display font-bold mb-5 leading-tight">Built for Food-Tech Businesses That Can't Afford to Lose Customers</h2>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  FoodRetainAI is an end-to-end customer churn intelligence platform built specifically for the food delivery industry.
+                  It combines exploratory data analysis, multi-model machine learning, and a Gemini-powered AI chatbot into one cohesive system.
+                </p>
+                <p className="text-muted-foreground leading-relaxed mb-8">
+                  The platform was trained and validated on 6,000+ real customer records sourced from the FoodPanda ecosystem,
+                  covering behavioral signals like order frequency, spend, delivery satisfaction, and loyalty engagement.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button onClick={() => navigate('/login')} className="gap-2">
+                    Start Exploring <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/chatbot')} className="gap-2">
+                    <MessageSquare className="h-4 w-4" /> Try AI Chatbot
+                  </Button>
+                </div>
+              </motion.div>
+
+              {/* Why us checklist */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="bg-card border border-border rounded-2xl p-8"
+              >
+                <h3 className="font-display font-bold text-lg mb-6">Why FoodRetainAI?</h3>
+                <div className="space-y-4">
+                  {[
+                    { title: 'Real Dataset, Real Insights', desc: '6,000+ customer records from FoodPanda with authentic behavioral signals — not mock data.' },
+                    { title: '4 ML Models Compared', desc: 'Random Forest, XGBoost, Decision Tree, and Logistic Regression — all trained, tuned, and benchmarked side by side.' },
+                    { title: 'Gemini AI Integration', desc: 'Conversational AI that understands churn context and offers personalised retention responses in real time.' },
+                    { title: 'No Backend Required', desc: 'Fully client-side app — instant access with local authentication, zero server setup needed.' },
+                    { title: 'Production-Grade UX', desc: 'Responsive dashboard with interactive charts, animated counters, tabbed navigation, and drill-down data views.' },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item.title}
+                      initial={{ opacity: 0, x: 10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      viewport={{ once: true }}
+                      className="flex gap-3"
+                    >
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold">{item.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              {[
-                {
-                  title: 'Our Mission',
-                  desc: 'To help food delivery businesses reduce customer churn by up to 40% using advanced machine learning models trained on real behavioral and transactional data.',
-                },
-                {
-                  title: 'The Technology',
-                  desc: 'Built on Random Forest, XGBoost, Logistic Regression, and Decision Tree models, combined with a Gemini-powered AI chatbot for real-time customer engagement.',
-                },
-                {
-                  title: 'The Impact',
-                  desc: 'From proactive discount offers to loyalty rewards and complaint resolution — FoodRetainAI turns data insights into customer retention actions automatically.',
-                },
-              ].map((item, i) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  viewport={{ once: true }}
-                  className="p-6 rounded-xl bg-card border border-border"
-                >
-                  <h3 className="font-display font-semibold text-lg mb-3 text-primary">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Explore More */}
-            <div className="bg-card border border-border rounded-2xl p-8">
-              <h3 className="font-display font-bold text-xl mb-6 text-center">Explore More</h3>
-              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: 'Live Dashboard', desc: 'Metrics & analytics', href: '/dashboard', icon: BarChart3 },
-                  { label: 'Churn Prediction', desc: 'Run ML predictions', href: '/dashboard', icon: Brain },
-                  { label: 'AI Chatbot', desc: 'Customer retention bot', href: '/chatbot', icon: MessageSquare },
-                  { label: 'Get Started', desc: 'Create your account', href: '/login?signup=true', icon: ArrowRight },
-                ].map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.href}
-                    className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
-                  >
-                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                      <item.icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">{item.desc}</p>
-                    </div>
-                  </Link>
+            {/* Tech Stack strip */}
+            <div className="text-center mb-10">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-5 font-medium">Built With</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {['React + TypeScript', 'Vite', 'Tailwind CSS', 'shadcn/ui', 'Recharts', 'Framer Motion', 'Random Forest', 'XGBoost', 'Gemini AI', 'EmailJS'].map((tech) => (
+                  <span key={tech} className="px-3 py-1.5 text-xs font-medium rounded-full border border-border bg-muted text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
+                    {tech}
+                  </span>
                 ))}
               </div>
             </div>
+
+            {/* Quick explore */}
+            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Live Dashboard', desc: 'Metrics, charts & raw data', href: '/dashboard', icon: BarChart3 },
+                { label: 'Churn Prediction', desc: 'Enter a profile, get a score', href: '/dashboard', icon: Brain },
+                { label: 'AI Chatbot', desc: 'Re-engage at-risk customers', href: '/chatbot', icon: MessageSquare },
+                { label: 'Create Account', desc: 'Sign up free, no credit card', href: '/login?signup=true', icon: ArrowRight },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.href}
+                  className="flex items-start gap-3 p-5 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <item.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{item.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="py-16 bg-dark-gradient">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h2 className="text-2xl md:text-4xl font-display font-bold text-primary-foreground mb-4">
+              Ready to Reduce Customer Churn?
+            </h2>
+            <p className="text-primary-foreground/70 mb-8 text-base">
+              Access the full dashboard, run live ML predictions, and let the AI chatbot handle customer retention — completely free.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 font-semibold gap-2 px-8"
+                onClick={() => navigate('/login?signup=true')}
+              >
+                Get Started Free <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/30 text-primary-foreground hover:bg-white/10 gap-2"
+                onClick={() => navigate('/dashboard')}
+              >
+                <BarChart3 className="h-4 w-4" /> View Dashboard
+              </Button>
+            </div>
+          </motion.div>
         </div>
       </section>
 
