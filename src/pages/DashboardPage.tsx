@@ -472,7 +472,7 @@ export default function DashboardPage() {
                     Showing first 1,000 of{' '}
                     {(dataFilter === 'All'
                       ? importedData.length
-                      : importedData.filter((r) => r.churned === dataFilter).length).toLocaleString()}{' '}
+                      : importedData.filter((r) => r.churned === (dataFilter === 'Churned' ? 'Inactive' : 'Active')).length).toLocaleString()}{' '}
                     {dataFilter !== 'All' && <Badge variant="outline" className="ml-1 text-xs">{dataFilter}</Badge>}
                     {' '}records
                   </p>
@@ -518,7 +518,7 @@ export default function DashboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {(dataFilter === 'All' ? importedData : importedData.filter((r) => r.churned === dataFilter))
+                        {(dataFilter === 'All' ? importedData : importedData.filter((r) => r.churned === (dataFilter === 'Churned' ? 'Inactive' : 'Active')))
                           .slice(0, 1000)
                           .map((row, i) => (
                           <tr key={i} className="border-t border-border hover:bg-muted/50 transition-colors">
