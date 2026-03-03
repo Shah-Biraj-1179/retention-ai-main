@@ -17,11 +17,14 @@ import { loadDataset, computeStats, type CustomerRecord, type DatasetStats } fro
 import { ChurnCharts } from '@/components/ChurnCharts';
 import { PredictionForm } from '@/components/PredictionForm';
 import logoImg from '@/assets/logo.png';
+import Papa from 'papaparse';
 
 export default function DashboardPage() {
   const [data, setData] = useState<CustomerRecord[]>([]);
   const [stats, setStats] = useState<DatasetStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [importStatus, setImportStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   const [activeTab, setActiveTab] = useState('eda');
   const [dataFilter, setDataFilter] = useState<'All' | 'Active' | 'Churned'>('All');
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -262,15 +265,17 @@ export default function DashboardPage() {
   const importCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImporting(true);
+    setImportStatus(null);
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      import('papaparse').then(({ default: Papa }) => {
-        Papa.parse(text, {
-          header: true,
-          skipEmptyLines: true,
-          dynamicTyping: true,
-          complete: (results: { data: Record<string, unknown>[] }) => {
+      Papa.parse<Record<string, unknown>>(text, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        complete: (results) => {
+          try {
             const cleaned = results.data
               .filter((row) => row.customer_id)
               .map((row) => ({
@@ -280,12 +285,26 @@ export default function DashboardPage() {
                 order_frequency: Number(row.order_frequency) || 0,
                 loyalty_points: Number(row.loyalty_points) || 0,
                 rating: row.rating ? Number(row.rating) : null,
-              })) as import('@/lib/dataset').CustomerRecord[];
+              })) as CustomerRecord[];
+            if (cleaned.length === 0) throw new Error('No valid rows found');
             setData(cleaned);
             setStats(computeStats(cleaned));
-          },
-        });
+            setImportStatus({ ok: true, msg: `✓ Loaded ${cleaned.length.toLocaleString()} records from "${file.name}"` });
+          } catch (err) {
+            setImportStatus({ ok: false, msg: `✗ Failed to parse CSV: ${err instanceof Error ? err.message : 'Unknown error'}` });
+          } finally {
+            setImporting(false);
+          }
+        },
+        error: (err) => {
+          setImportStatus({ ok: false, msg: `✗ Read error: ${err.message}` });
+          setImporting(false);
+        },
       });
+    };
+    reader.onerror = () => {
+      setImportStatus({ ok: false, msg: '✗ Could not read file' });
+      setImporting(false);
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -420,8 +439,9 @@ export default function DashboardPage() {
                       className="hidden"
                       onChange={importCSV}
                     />
-                    <Button size="sm" variant="outline" className="gap-2" onClick={() => fileInputRef.current?.click()}>
-                      <Upload className="h-4 w-4" /> Import CSV
+                    <Button size="sm" variant="outline" className="gap-2" onClick={() => fileInputRef.current?.click()} disabled={importing}>
+                      <Upload className="h-4 w-4" />
+                      {importing ? 'Importing…' : 'Import CSV'}
                     </Button>
                     {(['All', 'Active', 'Churned'] as const).map((f) => (
                       <button
@@ -460,6 +480,15 @@ export default function DashboardPage() {
                   {dataFilter !== 'All' && <Badge variant="outline" className="ml-1 text-xs">{dataFilter}</Badge>}
                   {' '}records
                 </p>
+                {importStatus && (
+                  <div className={`mt-2 text-sm px-3 py-2 rounded-lg font-medium ${
+                    importStatus.ok
+                      ? 'bg-success/10 text-success border border-success/30'
+                      : 'bg-destructive/10 text-destructive border border-destructive/30'
+                  }`}>
+                    {importStatus.msg}
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="overflow-auto max-h-[500px] rounded-lg border border-border">
