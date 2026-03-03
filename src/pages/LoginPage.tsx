@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import emailjs from '@emailjs/browser';
-import { supabase } from '@/integrations/supabase/client';
+import { signIn, signUp, updatePassword as localUpdatePassword } from '@/lib/localAuth';
 import logoImg from '@/assets/logo.png';
 
 // ── EmailJS config ──────────────────────────────────────────────────────────
@@ -144,33 +144,8 @@ export default function LoginPage() {
     }
     setResetLoading(true);
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-      const serviceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY as string;
-
-      if (!serviceKey || serviceKey === 'YOUR_SERVICE_ROLE_KEY_HERE') {
-        throw new Error('Service role key not configured. Add VITE_SUPABASE_SERVICE_KEY to your .env file.');
-      }
-
-      // Use Supabase JS admin client — handles CORS correctly
-      const { createClient } = await import('@supabase/supabase-js');
-      const adminClient = createClient(supabaseUrl, serviceKey, {
-        auth: { autoRefreshToken: false, persistSession: false },
-      });
-
-      // Find user by email
-      const { data: listData, error: listError } = await adminClient.auth.admin.listUsers();
-      if (listError) throw new Error(listError.message);
-
-      const user = listData?.users?.find((u) => u.email?.toLowerCase() === resetEmail.toLowerCase());
-      if (!user) {
-        throw new Error('No account found with this email. Make sure you have signed up first.');
-      }
-
-      // Update password
-      const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
-        password: newPassword,
-      });
-      if (updateError) throw new Error(updateError.message);
+      const { error } = localUpdatePassword(resetEmail, newPassword);
+      if (error) throw new Error(error);
 
       setResetStep(4);
       setForgotSent(true);
@@ -191,14 +166,15 @@ export default function LoginPage() {
     }
     setLoading(true);
     if (isSignup) {
-      const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
+      const { error } = signUp(email, password, name);
       setLoading(false);
-      if (error) { toast({ title: 'Sign up failed', description: error.message, variant: 'destructive' }); return; }
-      toast({ title: 'Account created!', description: 'Check your email to confirm your account, then sign in.' });
+      if (error) { toast({ title: 'Sign up failed', description: error, variant: 'destructive' }); return; }
+      toast({ title: 'Account created!', description: 'You can now sign in with your credentials.' });
+      setIsSignup(false);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = signIn(email, password);
       setLoading(false);
-      if (error) { toast({ title: 'Sign in failed', description: error.message, variant: 'destructive' }); return; }
+      if (error) { toast({ title: 'Sign in failed', description: error, variant: 'destructive' }); return; }
       toast({ title: 'Welcome back!', description: 'Redirecting to dashboard...' });
       setTimeout(() => navigate('/dashboard'), 800);
     }
