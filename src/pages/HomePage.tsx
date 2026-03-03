@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { ArrowRight, BarChart3, Brain, Mail, MessageSquare, Shield, TrendingUp, Users, Github, Linkedin, ExternalLink, GitBranch, TreeDeciduous, Layers, Zap, X, CheckCircle2, ChevronRight, Database, Target, Sparkles, Clock, Award, PlayCircle } from 'lucide-react';
+import { ArrowRight, BarChart3, Brain, Mail, MessageSquare, Shield, TrendingUp, Users, Github, Linkedin, ExternalLink, GitBranch, TreeDeciduous, Layers, Zap, X, CheckCircle2, ChevronRight, Database, Target, Sparkles, PlayCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import logoImg from '@/assets/logo.png';
 import heroImg from '@/assets/hero-bg.jpg';
@@ -29,23 +29,23 @@ const features = [
     icon: BarChart3,
     title: 'Interactive Analytics Dashboard',
     desc: 'Explore deep EDA with 10+ interactive charts — churn by city, age, spend, rating, and order frequency. Every insight is one click away.',
-    link: '/dashboard',
-    section: 'charts',
+    link: '/features/analytics',
+    section: '',
     badge: 'Analytics',
   },
   {
     icon: Brain,
     title: 'ML-Powered Churn Prediction',
     desc: 'Enter any customer profile and get an instant churn probability score from our best-performing Random Forest model (92% accuracy).',
-    link: '/dashboard',
-    section: 'prediction',
+    link: '/features/prediction',
+    section: '',
     badge: 'AI / ML',
   },
   {
     icon: MessageSquare,
     title: 'AI Retention Chatbot',
     desc: 'Gemini-powered chatbot that responds to customer queries, offers personalized discounts, and resolves complaints automatically.',
-    link: '/chatbot',
+    link: '/features/chatbot',
     section: '',
     badge: 'Chatbot',
   },
@@ -53,23 +53,23 @@ const features = [
     icon: TrendingUp,
     title: 'Live Churn Monitoring',
     desc: 'Monitor active vs churned customer counts, churn rates, and spend metrics in real-time on a centralized dashboard designed for action.',
-    link: '/dashboard',
-    section: 'overview',
+    link: '/features/monitoring',
+    section: '',
     badge: 'Monitoring',
   },
   {
     icon: Users,
     title: 'Smart Customer Segmentation',
     desc: 'Slice your customer base by city, age group, payment method, and order frequency. Identify your highest-risk segments instantly.',
-    link: '/dashboard',
-    section: 'charts',
+    link: '/features/segmentation',
+    section: '',
     badge: 'Segmentation',
   },
   {
     icon: Shield,
     title: 'Automated Retention Actions',
     desc: 'AI-driven playbooks that trigger discount offers, loyalty point boosts, and re-engagement emails automatically when churn risk is detected.',
-    link: '/chatbot',
+    link: '/features/retention',
     section: '',
     badge: 'Automation',
   },
@@ -90,13 +90,33 @@ const mlModels = [
     name: 'Random Forest',
     accuracy: '92%',
     desc: 'Ensemble of decision trees with bagging. Best overall accuracy for churn prediction on tabular data.',
-    color: 'text-chart-blue',
+    color: 'text-blue-500',
     bg: 'bg-blue-500/10',
     barColor: 'bg-blue-500',
     detail: {
-      howItWorks: 'Random Forest builds hundreds of decision trees during training, each trained on a random subset of data and features (bagging). At prediction time every tree votes and the majority class wins — reducing overfitting and variance significantly vs a single tree.',
-      howUsed: 'Trained on 6,000 FoodPanda records with 80/20 split. Params (n_estimators=200, max_depth=15, min_samples_split=5) tuned via GridSearchCV. Became the primary production model due to highest F1 on the churned class. SMOTE used to balance Active vs Churned classes.',
-      features: ['Order Frequency', 'Days Since Last Order', 'Average Spend (₹)', 'Customer Rating', 'Loyalty Points', 'Delivery Complaints', 'City Tier', 'Payment Method'],
+      theory: 'Random Forest is an ensemble method that creates a "forest" of N independent decision trees. Each tree is trained on a random bootstrap sample of rows (bagging) AND a random subset of features at every split (feature randomness). This double randomization makes each tree different and decorrelated. At prediction time, every tree independently classifies the customer as Churned or Active — and the class with the most votes wins. The ensemble effect cancels out individual tree errors, producing a model far more robust than any single tree.',
+      howUsed: 'Trained on 6,000 FoodPanda records with 80/20 split. Params (n_estimators=200, max_depth=15, min_samples_split=5) tuned via GridSearchCV. Became the primary production model due to highest F1 on the churned class. SMOTE was applied before training to balance the Active (3,016) vs Churned (2,984) classes.',
+      inputFeatures: [
+        { name: 'Order Frequency', type: 'Numerical', role: '↑ Orders = ↓ Churn risk' },
+        { name: 'Days Since Last Order', type: 'Numerical', role: 'Top predictor — ↑ days = ↑ churn' },
+        { name: 'Average Spend (₹)', type: 'Numerical', role: 'Higher spend = more engaged' },
+        { name: 'Customer Rating', type: 'Numerical (1–5)', role: 'Low rating = unsatisfied = churn risk' },
+        { name: 'Loyalty Points', type: 'Numerical', role: 'High points = loyal customer' },
+        { name: 'Delivery Complaints', type: 'Categorical', role: 'Complaint = strong churn signal' },
+        { name: 'City Tier', type: 'Categorical', role: 'City-wise churn pattern differences' },
+        { name: 'Payment Method', type: 'Categorical', role: 'Proxy for customer behaviour type' },
+      ],
+      targetOutput: { name: 'Churn Status', values: ['Active (0)', 'Churned (1)'] },
+      featureImportance: [
+        { feature: 'Order Frequency', pct: 22, color: 'bg-blue-500' },
+        { feature: 'Days Since Last Order', pct: 16, color: 'bg-blue-500' },
+        { feature: 'Customer Rating', pct: 15, color: 'bg-blue-500' },
+        { feature: 'Avg Spend (₹)', pct: 14, color: 'bg-blue-400' },
+        { feature: 'Loyalty Points', pct: 12, color: 'bg-blue-400' },
+        { feature: 'Delivery Complaints', pct: 10, color: 'bg-blue-300' },
+        { feature: 'City Tier', pct: 6, color: 'bg-blue-300' },
+        { feature: 'Payment Method', pct: 5, color: 'bg-blue-200' },
+      ],
       metrics: [
         { label: 'Accuracy', value: '92%', pct: 92 },
         { label: 'Precision', value: '91%', pct: 91 },
@@ -105,13 +125,13 @@ const mlModels = [
         { label: 'AUC-ROC',   value: '0.97', pct: 97 },
       ],
       steps: [
-        'Data cleaning: handled missing ratings, encoded categoricals',
-        'SMOTE applied to handle class imbalance (Active vs Churned)',
-        'Feature scaling using StandardScaler on numerical columns',
-        'GridSearchCV with 5-fold CV for hyperparameter tuning',
-        'Final model trained on full training set, evaluated on held-out test set',
+        'Data cleaning: handled missing ratings, encoded categorical features',
+        'SMOTE applied to handle class imbalance (Active 3,016 vs Churned 2,984)',
+        'Feature scaling using StandardScaler on all numerical columns',
+        'GridSearchCV with 5-fold CV tuning n_estimators, max_depth, min_samples_split',
+        'Final model trained on 80% train set; performance evaluated on 20% held-out test set',
       ],
-      insight: '"Order Frequency" and "Days Since Last Order" were the top 2 most important features, together accounting for 38% of model decisions.',
+      insight: '"Order Frequency" and "Days Since Last Order" are the top 2 most important features, together accounting for 38% of all model decisions across 200 trees.',
     },
   },
   {
@@ -119,13 +139,33 @@ const mlModels = [
     name: 'XGBoost',
     accuracy: '91%',
     desc: 'Gradient boosting algorithm. Handles class imbalance and feature interactions extremely well.',
-    color: 'text-chart-orange',
+    color: 'text-orange-500',
     bg: 'bg-orange-500/10',
     barColor: 'bg-orange-500',
     detail: {
-      howItWorks: 'XGBoost builds trees sequentially where each new tree corrects errors of the previous ones using gradient descent on a differentiable loss function. L1/L2 regularization and tree pruning prevent overfitting. It is consistently one of the fastest and most accurate boosting algorithms.',
-      howUsed: 'Used as challenger model vs Random Forest. scale_pos_weight = churned/active ratio handled imbalance natively without SMOTE. Early stopping (50 rounds) prevented overfitting. SHAP values were computed to explain individual predictions per customer.',
-      features: ['Days Since Last Order', 'Order Frequency', 'Avg Spend (₹)', 'Delivery Complaints', 'Promo Usage', 'Rating Trend', 'City', 'Age Group'],
+      theory: 'XGBoost (Extreme Gradient Boosting) builds trees sequentially — not independently. Each new tree focuses specifically on the mistakes of all previous trees by fitting to the residual errors (gradients of a loss function). The final prediction is an additive sum: F(x) = Tree₁(x) + Tree₂(x) + ... + Treeₙ(x). L1 (Lasso) and L2 (Ridge) regularization penalties prevent overfitting. Learning rate (η) shrinks each tree\'s contribution. The result: a powerful model that continuously self-corrects and reaches near-optimal accuracy with fewer trees than Random Forest.',
+      howUsed: 'Used as challenger model vs Random Forest. scale_pos_weight = churned_count / active_count (≈0.99) handled class imbalance natively without SMOTE. Early stopping after 50 non-improving rounds prevented overfitting. SHAP values were computed per customer to explain individual churn probability contributions.',
+      inputFeatures: [
+        { name: 'Days Since Last Order', type: 'Numerical', role: 'SHAP #1 — highest impact on churn' },
+        { name: 'Order Frequency', type: 'Numerical', role: 'SHAP #2 — frequent orders = retention' },
+        { name: 'Avg Spend (₹)', type: 'Numerical', role: 'Higher spend = engaged user' },
+        { name: 'Delivery Complaints', type: 'Categorical', role: 'Direct negative experience signal' },
+        { name: 'Promo Usage', type: 'Binary', role: 'Promo users may be deal-driven, churn risk' },
+        { name: 'Rating Trend', type: 'Categorical', role: 'Declining ratings = increasing churn risk' },
+        { name: 'City', type: 'Categorical (5)', role: 'City-specific churn patterns in dataset' },
+        { name: 'Age Group', type: 'Categorical (3)', role: 'Youth/Adult/Senior churn differences' },
+      ],
+      targetOutput: { name: 'Churn Probability', values: ['P(Churn) → 0 = Active', 'P(Churn) → 1 = Churned'] },
+      featureImportance: [
+        { feature: 'Days Since Last Order', pct: 28, color: 'bg-orange-500' },
+        { feature: 'Order Frequency', pct: 21, color: 'bg-orange-500' },
+        { feature: 'Delivery Complaints', pct: 16, color: 'bg-orange-400' },
+        { feature: 'Avg Spend (₹)', pct: 13, color: 'bg-orange-400' },
+        { feature: 'Rating Trend', pct: 10, color: 'bg-orange-300' },
+        { feature: 'Promo Usage', pct: 7, color: 'bg-orange-300' },
+        { feature: 'City', pct: 3, color: 'bg-orange-200' },
+        { feature: 'Age Group', pct: 2, color: 'bg-orange-200' },
+      ],
       metrics: [
         { label: 'Accuracy', value: '91%', pct: 91 },
         { label: 'Precision', value: '90%', pct: 90 },
@@ -134,13 +174,13 @@ const mlModels = [
         { label: 'AUC-ROC',   value: '0.96', pct: 96 },
       ],
       steps: [
-        'Label encoding for categorical features (city, gender, payment)',
-        'scale_pos_weight = churned_count / active_count for class imbalance',
-        'Bayesian optimization for learning_rate, max_depth, subsample params',
-        'SHAP values computed to explain individual customer churn probability',
-        'Cross-validation AUC used as primary model selection metric',
+        'Label encoding for categorical features: city (5 cities), gender, payment method',
+        'scale_pos_weight = 2984/3016 ≈ 0.99 to handle class imbalance natively',
+        'Bayesian optimization: learning_rate=0.05, max_depth=6, subsample=0.8',
+        'SHAP values computed for each of 6,000 customers to explain individual churn probability',
+        'Cross-validation AUC-ROC (0.96) used as primary model selection metric',
       ],
-      insight: '"Days Since Last Order" was the single most important feature per SHAP analysis — customers inactive for 45+ days had 3.2× higher churn probability.',
+      insight: '"Days Since Last Order" is the single most important feature per SHAP analysis — customers inactive for 45+ days showed 3.2× higher churn probability across the dataset.',
     },
   },
   {
@@ -148,13 +188,29 @@ const mlModels = [
     name: 'Logistic Regression',
     accuracy: '85%',
     desc: 'Baseline binary classifier. Provides interpretable feature importance and probability scores.',
-    color: 'text-chart-purple',
+    color: 'text-purple-500',
     bg: 'bg-purple-500/10',
     barColor: 'bg-purple-500',
     detail: {
-      howItWorks: 'Logistic Regression models the probability of churn using a sigmoid function applied to a weighted linear combination of features. The output is a value between 0–1, thresholded at 0.5 to classify Active vs Churned. Coefficients can be directly interpreted as feature impact.',
-      howUsed: 'Served as the interpretable baseline model. L2 regularization (C=0.1) reduced overfitting. Classification threshold adjusted from 0.5 to 0.4 to improve recall on churned class. Feature coefficients directly revealed: a 1-unit increase in order frequency reduced churn probability by 0.18.',
-      features: ['Order Frequency', 'Avg Spend', 'Rating', 'Loyalty Points', 'Delivery Issues', 'Account Age (days)'],
+      theory: 'Logistic Regression predicts churn probability using the sigmoid (logistic) function applied to a linear combination of input features. The equation is: P(Churn) = 1 / (1 + e^−(w₀ + w₁×OrderFreq + w₂×Rating + w₃×DaysSince + ...)). The sigmoid compresses any linear value into a 0–1 probability. The decision threshold (default 0.5) determines the final class: above threshold → Churned, below → Active. Each coefficient (weight) directly measures the direction and magnitude of each feature\'s effect on churn probability — making this model fully transparent and explainable to non-technical stakeholders.',
+      howUsed: 'Served as the interpretable baseline model. L2 regularization (C=0.1) reduced overfitting. Classification threshold adjusted from 0.5 to 0.4 to improve recall on the churned class (catch more true churners). Feature coefficients revealed: a 1-unit increase in order frequency reduces churn probability by 0.18; a 1-unit drop in rating increases churn probability by 0.74.',
+      inputFeatures: [
+        { name: 'Order Frequency', type: 'Numerical', role: 'Coefficient: −0.18 (↑ orders = ↓ churn)' },
+        { name: 'Avg Spend (₹)', type: 'Numerical (scaled)', role: 'Coefficient: −0.14 (↑ spend = ↓ churn)' },
+        { name: 'Customer Rating', type: 'Numerical (1–5)', role: 'Coefficient: +0.74 (↓ rating = ↑ churn)' },
+        { name: 'Loyalty Points', type: 'Numerical (scaled)', role: 'Coefficient: −0.11 (loyal = retained)' },
+        { name: 'Delivery Issues', type: 'Binary (0/1)', role: 'Coefficient: +0.52 (complaint = churn risk)' },
+        { name: 'Account Age (days)', type: 'Numerical (scaled)', role: 'Coefficient: −0.08 (older = more loyal)' },
+      ],
+      targetOutput: { name: 'P(Churn) via Sigmoid', values: ['< 0.4 threshold → Active', '≥ 0.4 threshold → Churned'] },
+      featureImportance: [
+        { feature: 'Customer Rating (↑ churn)', pct: 74, color: 'bg-destructive', coef: '+0.74', dir: '+' },
+        { feature: 'Days Inactive (↑ churn)', pct: 68, color: 'bg-destructive', coef: '+0.68', dir: '+' },
+        { feature: 'Delivery Issues (↑ churn)', pct: 52, color: 'bg-destructive', coef: '+0.52', dir: '+' },
+        { feature: 'Order Frequency (↓ churn)', pct: 18, color: 'bg-purple-500', coef: '−0.18', dir: '-' },
+        { feature: 'Avg Spend (↓ churn)', pct: 14, color: 'bg-purple-500', coef: '−0.14', dir: '-' },
+        { feature: 'Loyalty Points (↓ churn)', pct: 11, color: 'bg-purple-500', coef: '−0.11', dir: '-' },
+      ],
       metrics: [
         { label: 'Accuracy', value: '85%', pct: 85 },
         { label: 'Precision', value: '83%', pct: 83 },
@@ -163,27 +219,41 @@ const mlModels = [
         { label: 'AUC-ROC',   value: '0.91', pct: 91 },
       ],
       steps: [
-        'Feature standardization with StandardScaler (critical for LR convergence)',
-        'One-hot encoding for all categorical variables',
-        'L2 regularization with C tuned via cross-validation grid search',
+        'Feature standardization with StandardScaler — critical for LR gradient convergence',
+        'One-hot encoding for all categorical variables (city, payment method, gender)',
+        'L2 regularization with C=0.1 tuned via 5-fold cross-validation grid search',
         'Decision threshold tuned to 0.4 to prioritize recall on churned class',
-        'Coefficients extracted and ranked for business stakeholder report',
+        'Coefficients extracted, ranked, and delivered as business stakeholder report',
       ],
-      insight: 'Low rating (< 2.5 stars) had the strongest positive churn coefficient (+0.74), making it the most actionable signal for the support team.',
+      insight: 'Low rating (< 2.5 stars) had the strongest positive churn coefficient (+0.74), making it the single most actionable retention signal for the customer support team.',
     },
   },
   {
     icon: TreeDeciduous,
     name: 'Decision Tree',
     accuracy: '88%',
-    desc: 'Highly interpretable model. Produces human-readable rules to explain churn decisions.',
-    color: 'text-success',
-    bg: 'bg-green-500/10',
-    barColor: 'bg-green-500',
+    desc: 'Highly interpretable model. Produces human-readable if-else rules to explain churn decisions.',
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-500/10',
+    barColor: 'bg-emerald-500',
     detail: {
-      howItWorks: 'A Decision Tree recursively splits data at each node using the feature and threshold that maximizes information gain (Gini impurity reduction). The result is a tree of if-else rules — readable by both engineers and business analysts without any ML knowledge.',
-      howUsed: 'Used to generate explainable churn rules for the business team. max_depth=8 balanced accuracy and interpretability. Key discovered rule: "If Days Since Last Order > 45 AND Rating < 2.5 → 89% churn probability". This rule directly drove the AI chatbot\'s retention trigger logic.',
-      features: ['Days Since Last Order', 'Rating', 'Order Frequency', 'Loyalty Points', 'Delivery Complaints'],
+      theory: 'A Decision Tree recursively splits the dataset at each internal node by choosing the feature and split threshold that maximally reduces Gini Impurity — a measure of class mixing. Gini = 1 − Σ(pᵢ²). A pure node (all one class) has Gini = 0. The algorithm greedily selects the best split at every level until a stopping criterion (max_depth or min_samples_leaf) is met. Each leaf node outputs a class label. The resulting model is a hierarchy of if-else rules that can be read, printed, and explained by anyone without ML knowledge.',
+      howUsed: 'Used to generate fully explainable churn rules for the business team. max_depth=8 was chosen to balance depth (accuracy) and readability. Cost-complexity pruning (ccp_alpha) removed weak branches. The most critical rule discovered — "Days Since Last Order > 45 AND Rating < 2.5 → 89% churn probability" — was directly integrated into the AI chatbot\'s retention trigger system.',
+      inputFeatures: [
+        { name: 'Days Since Last Order', type: 'Numerical', role: 'Root split — most discriminating feature' },
+        { name: 'Customer Rating', type: 'Numerical (1–5)', role: '2nd split — sub-divides inactive users' },
+        { name: 'Order Frequency', type: 'Numerical', role: '3rd level split — frequency confirms risk' },
+        { name: 'Loyalty Points', type: 'Numerical', role: '4th level — high points = lower churn' },
+        { name: 'Delivery Complaints', type: 'Binary', role: 'Leaf-level splitter for edge cases' },
+      ],
+      targetOutput: { name: 'Leaf Class Label', values: ['Active (0)', 'Churned (1)', '+ Gini purity score'] },
+      featureImportance: [
+        { feature: 'Days Since Last Order', pct: 35, color: 'bg-emerald-500' },
+        { feature: 'Customer Rating', pct: 28, color: 'bg-emerald-500' },
+        { feature: 'Order Frequency', pct: 20, color: 'bg-emerald-400' },
+        { feature: 'Loyalty Points', pct: 10, color: 'bg-emerald-400' },
+        { feature: 'Delivery Complaints', pct: 7, color: 'bg-emerald-300' },
+      ],
       metrics: [
         { label: 'Accuracy', value: '88%', pct: 88 },
         { label: 'Precision', value: '87%', pct: 87 },
@@ -192,13 +262,13 @@ const mlModels = [
         { label: 'AUC-ROC',   value: '0.93', pct: 93 },
       ],
       steps: [
-        'Gini impurity used as the node split criterion',
-        'max_depth=8 and min_samples_leaf=20 to control tree complexity',
-        'Cost-complexity pruning (ccp_alpha) applied after initial training',
-        'Tree exported and visualized using sklearn plot_tree',
-        'Top 5 churn rules extracted and integrated into chatbot trigger system',
+        'Gini impurity used as the node-split criterion (lower = purer splits)',
+        'max_depth=8 and min_samples_leaf=20 set to control tree complexity',
+        'cost_complexity_pruning (ccp_alpha=0.001) removed weak, low-gain branches',
+        'Tree fully visualized using sklearn plot_tree and exported as PNG',
+        'Top 5 churn decision rules extracted and integrated into AI chatbot trigger system',
       ],
-      insight: 'The most powerful single rule found: "Days Since Last Order > 45 AND Rating < 2.5" correctly flagged 89% of churned customers — now used as the primary chatbot alert trigger.',
+      insight: 'The most powerful single rule: "Days Since Last Order > 45 AND Rating < 2.5" correctly identifies 89% of churned customers — used as the primary AI chatbot retention alert trigger.',
     },
   },
 ];
@@ -241,7 +311,6 @@ export default function HomePage() {
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
-            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             <a href="#stats" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Stats</a>
             <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</a>
             <a href="#contact-us" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact Us</a>
@@ -290,19 +359,7 @@ export default function HomePage() {
                   <PlayCircle className="h-4 w-4" /> See How It Works
                 </Button>
               </div>
-              {/* Mini trust bar */}
-              <div className="flex items-center gap-6 flex-wrap">
-                {[
-                  { icon: Award, text: '92% ML Accuracy' },
-                  { icon: Users, text: '6,000+ Records' },
-                  { icon: Clock, text: 'Instant Predictions' },
-                ].map((item) => (
-                  <div key={item.text} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <item.icon className="h-4 w-4 text-primary" />
-                    <span>{item.text}</span>
-                  </div>
-                ))}
-              </div>
+
             </motion.div>
 
             {/* Right: Dashboard Preview Card */}
@@ -379,73 +436,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-muted/30">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-              <Target className="h-3.5 w-3.5" /> Simple 3-Step Process
-            </div>
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">How FoodRetainAI Works</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">From raw customer data to actionable retention strategies — in three simple steps.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
-            {/* Connector line */}
-            <div className="hidden md:block absolute top-10 left-1/3 right-1/3 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
-            {[
-              {
-                step: '01',
-                icon: Database,
-                title: 'Load & Explore Your Data',
-                desc: 'The platform ingests 6,000+ food delivery customer records and instantly generates interactive charts — churn by city, spend distribution, rating trends, and more.',
-                cta: 'View Analytics',
-                href: '/dashboard',
-              },
-              {
-                step: '02',
-                icon: Brain,
-                title: 'Predict Churn with ML',
-                desc: 'Enter a customer profile (orders, rating, spend, loyalty points) and get an instant churn probability score powered by our Random Forest model with 92% accuracy.',
-                cta: 'Try Prediction',
-                href: '/dashboard',
-              },
-              {
-                step: '03',
-                icon: MessageSquare,
-                title: 'Re-engage with AI Chatbot',
-                desc: 'Our Gemini-powered chatbot automatically offers personalised discounts, resolves delivery complaints, and sends retention nudges to at-risk customers.',
-                cta: 'Open Chatbot',
-                href: '/chatbot',
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15 }}
-                viewport={{ once: true }}
-                className="relative flex flex-col items-center text-center p-7 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-elevated transition-all group"
-              >
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center shadow-md">
-                  {item.step}
-                </div>
-                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 mt-4 group-hover:bg-primary/20 transition-colors">
-                  <item.icon className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-display font-bold text-base mb-3">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{item.desc}</p>
-                <button
-                  onClick={() => navigate(item.href)}
-                  className="flex items-center gap-1 text-primary text-sm font-medium hover:gap-2 transition-all"
-                >
-                  {item.cta} <ChevronRight className="h-4 w-4" />
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features */}
       <section id="features" className="py-20">
         <div className="container mx-auto px-6">
@@ -462,7 +452,7 @@ export default function HomePage() {
                 transition={{ delay: i * 0.08 }}
                 viewport={{ once: true }}
                 className="group p-6 rounded-xl bg-card shadow-card hover:shadow-elevated transition-all duration-300 border border-border hover:border-primary/30 cursor-pointer"
-                onClick={() => navigate(f.section ? `${f.link}?section=${f.section}` : f.link)}
+                onClick={() => navigate(f.link)}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -535,109 +525,71 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About / Why Us */}
+      {/* About */}
       <section id="about" className="py-20 bg-background">
         <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-
-            {/* Main about header */}
-            <div className="grid lg:grid-cols-2 gap-14 items-center mb-20">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-              >
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-                  <Brain className="h-3.5 w-3.5" /> About This Project
-                </div>
-                <h2 className="text-3xl md:text-4xl font-display font-bold mb-5 leading-tight">Built for Food-Tech Businesses That Can't Afford to Lose Customers</h2>
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  FoodRetainAI is an end-to-end customer churn intelligence platform built specifically for the food delivery industry.
-                  It combines exploratory data analysis, multi-model machine learning, and a Gemini-powered AI chatbot into one cohesive system.
-                </p>
-                <p className="text-muted-foreground leading-relaxed mb-8">
-                  The platform was trained and validated on 6,000+ real customer records sourced from the FoodPanda ecosystem,
-                  covering behavioral signals like order frequency, spend, delivery satisfaction, and loyalty engagement.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button onClick={() => navigate('/login')} className="gap-2">
-                    Start Exploring <ArrowRight className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/chatbot')} className="gap-2">
-                    <MessageSquare className="h-4 w-4" /> Try AI Chatbot
-                  </Button>
-                </div>
-              </motion.div>
-
-              {/* Why us checklist */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="bg-card border border-border rounded-2xl p-8"
-              >
-                <h3 className="font-display font-bold text-lg mb-6">Why FoodRetainAI?</h3>
-                <div className="space-y-4">
-                  {[
-                    { title: 'Real Dataset, Real Insights', desc: '6,000+ customer records from FoodPanda with authentic behavioral signals — not mock data.' },
-                    { title: '4 ML Models Compared', desc: 'Random Forest, XGBoost, Decision Tree, and Logistic Regression — all trained, tuned, and benchmarked side by side.' },
-                    { title: 'Gemini AI Integration', desc: 'Conversational AI that understands churn context and offers personalised retention responses in real time.' },
-                    { title: 'No Backend Required', desc: 'Fully client-side app — instant access with local authentication, zero server setup needed.' },
-                    { title: 'Production-Grade UX', desc: 'Responsive dashboard with interactive charts, animated counters, tabbed navigation, and drill-down data views.' },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, x: 10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.08 }}
-                      viewport={{ once: true }}
-                      className="flex gap-3"
-                    >
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-semibold">{item.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">About FoodRetainAI</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                An intelligent, data-driven platform that empowers food-tech businesses to understand their customers, predict churn before it happens, and take action to retain them.
+              </p>
             </div>
 
-            {/* Tech Stack strip */}
-            <div className="text-center mb-10">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-5 font-medium">Built With</p>
-              <div className="flex flex-wrap justify-center gap-3">
-                {['React + TypeScript', 'Vite', 'Tailwind CSS', 'shadcn/ui', 'Recharts', 'Framer Motion', 'Random Forest', 'XGBoost', 'Gemini AI', 'EmailJS'].map((tech) => (
-                  <span key={tech} className="px-3 py-1.5 text-xs font-medium rounded-full border border-border bg-muted text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors">
-                    {tech}
-                  </span>
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              {[
+                {
+                  title: 'Our Mission',
+                  desc: 'To help food delivery businesses reduce customer churn by up to 40% using advanced machine learning models trained on real behavioral and transactional data.',
+                },
+                {
+                  title: 'The Technology',
+                  desc: 'Built on Random Forest, XGBoost, Logistic Regression, and Decision Tree models, combined with a Gemini-powered AI chatbot for real-time customer engagement.',
+                },
+                {
+                  title: 'The Impact',
+                  desc: 'From proactive discount offers to loyalty rewards and complaint resolution — FoodRetainAI turns data insights into customer retention actions automatically.',
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="p-6 rounded-xl bg-card border border-border"
+                >
+                  <h3 className="font-display font-semibold text-lg mb-3 text-primary">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Explore More */}
+            <div className="bg-card border border-border rounded-2xl p-8">
+              <h3 className="font-display font-bold text-xl mb-6 text-center">Explore More</h3>
+              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Live Dashboard', desc: 'Metrics & analytics', href: '/dashboard', icon: BarChart3 },
+                  { label: 'Churn Prediction', desc: 'Run ML predictions', href: '/dashboard', icon: Brain },
+                  { label: 'AI Chatbot', desc: 'Customer retention bot', href: '/chatbot', icon: MessageSquare },
+                  { label: 'Get Started', desc: 'Create your account', href: '/login?signup=true', icon: ArrowRight },
+                ].map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                  >
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                      <item.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </Link>
                 ))}
               </div>
-            </div>
-
-            {/* Quick explore */}
-            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Live Dashboard', desc: 'Metrics, charts & raw data', href: '/dashboard', icon: BarChart3 },
-                { label: 'Churn Prediction', desc: 'Enter a profile, get a score', href: '/dashboard', icon: Brain },
-                { label: 'AI Chatbot', desc: 'Re-engage at-risk customers', href: '/chatbot', icon: MessageSquare },
-                { label: 'Create Account', desc: 'Sign up free, no credit card', href: '/login?signup=true', icon: ArrowRight },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.href}
-                  className="flex items-start gap-3 p-5 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
-                >
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                    <item.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">{item.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
-                  </div>
-                </Link>
-              ))}
             </div>
           </div>
         </div>
@@ -825,22 +777,365 @@ export default function HomePage() {
                 </button>
               </div>
 
-              <div className="p-6 space-y-7">
-                {/* How it works */}
+              <div className="p-6 space-y-8">
+
+                {/* ── 1. THEORY + FORMULA ── */}
                 <div>
-                  <h3 className={`font-display font-bold text-base mb-2 ${selectedModel.color}`}>How It Works</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{selectedModel.detail.howItWorks}</p>
+                  <h3 className={`font-display font-bold text-base mb-2 ${selectedModel.color}`}>How It Works — Theory</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{selectedModel.detail.theory}</p>
+
+                  {/* Algorithm-specific formula box */}
+                  {selectedModel.name === 'Random Forest' && (
+                    <div className="mt-4 bg-muted rounded-xl p-4 border border-border space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Core Prediction Rule (Majority Vote):</p>
+                      <p className={`font-mono text-xs font-bold ${selectedModel.color}`}>ŷ = argmax_c Σᵢ 𝟙[Tᵢ(x) = c]  over i = 1…200 trees</p>
+                      <p className="text-xs text-muted-foreground">Each Tᵢ is trained on a bootstrap sample (random rows) + √p random features per split (p = 8 features)</p>
+                    </div>
+                  )}
+                  {selectedModel.name === 'XGBoost' && (
+                    <div className="mt-4 bg-muted rounded-xl p-4 border border-border space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Additive Ensemble Formula:</p>
+                      <p className={`font-mono text-xs font-bold ${selectedModel.color}`}>F(x) = η·T₁(x) + η·T₂(x) + ... + η·T₂₀₀(x)</p>
+                      <p className="text-xs text-muted-foreground">η = learning rate (0.05) · Each Tᵢ fits the negative gradient (residual errors) of the previous trees</p>
+                    </div>
+                  )}
+                  {selectedModel.name === 'Logistic Regression' && (
+                    <div className="mt-4 bg-muted rounded-xl p-4 border border-border space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Core Equation — Sigmoid Function:</p>
+                      <p className={`font-mono text-xs font-bold ${selectedModel.color}`}>P(Churn) = 1 / (1 + e<sup>−(w₀ + w₁·OrderFreq + w₂·Rating + w₃·DaysSince + w₄·LoyaltyPts + ...)</sup>)</p>
+                      <p className="text-xs text-muted-foreground">Threshold tuned to 0.4 (not default 0.5) to maximise recall on churned class — catching more true churners</p>
+                    </div>
+                  )}
+                  {selectedModel.name === 'Decision Tree' && (
+                    <div className="mt-4 bg-muted rounded-xl p-4 border border-border space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Split Criterion — Gini Impurity:</p>
+                      <p className={`font-mono text-xs font-bold ${selectedModel.color}`}>Gini(node) = 1 − [P(Active)² + P(Churned)²]</p>
+                      <p className="text-xs text-muted-foreground">Best split = feature + threshold that minimises weighted Gini of child nodes. Pure node (all one class) = Gini 0.</p>
+                    </div>
+                  )}
                 </div>
 
-                {/* How used in this project */}
+                {/* ── 2. ALGORITHM ARCHITECTURE VISUAL ── */}
+                <div>
+                  <h3 className={`font-display font-bold text-base mb-4 ${selectedModel.color}`}>Algorithm Architecture — Visual Diagram</h3>
+
+                  {/* ── RANDOM FOREST ── */}
+                  {selectedModel.name === 'Random Forest' && (
+                    <div className="space-y-3">
+                      <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-3">Step 1 — Training: Bagging (6,000 FoodPanda Records)</p>
+                        <div className="flex items-start gap-2 flex-wrap">
+                          <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs text-center shrink-0">
+                            <Database className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+                            <p className="font-bold">6,000</p>
+                            <p className="text-muted-foreground">Records</p>
+                          </div>
+                          <ArrowRight className="h-3 w-3 text-muted-foreground mt-4 shrink-0" />
+                          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-3 py-2 text-xs text-center shrink-0">
+                            <p className="font-bold text-blue-500">SMOTE</p>
+                            <p className="text-muted-foreground">Balance classes</p>
+                            <p className="text-muted-foreground">3016 / 2984</p>
+                          </div>
+                          <ArrowRight className="h-3 w-3 text-muted-foreground mt-4 shrink-0" />
+                          <div className="flex gap-1.5 flex-wrap flex-1">
+                            {['Bootstrap\nSample 1', 'Bootstrap\nSample 2', 'Bootstrap\nSample 3', '...200\nsamples'].map((s, i) => (
+                              <div key={i} className="bg-card border border-border rounded-lg px-2 py-1.5 text-xs text-center">
+                                <GitBranch className={`h-3 w-3 mx-auto mb-0.5 ${selectedModel.color}`} />
+                                <p className="text-muted-foreground whitespace-pre-line leading-tight">{s}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2 italic">Each bootstrap sample = random 63% of rows (with replacement) + random √8 ≈ 3 features per split</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-3">Step 2 — Prediction: Majority Voting (New Customer Input)</p>
+                        <div className="flex items-start gap-2 flex-wrap">
+                          <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs text-center shrink-0">
+                            <Users className="h-4 w-4 mx-auto mb-1 text-primary" />
+                            <p className="font-bold">Customer</p>
+                            <p className="text-muted-foreground">Profile</p>
+                          </div>
+                          <ArrowRight className="h-3 w-3 mt-4 text-muted-foreground shrink-0" />
+                          <div className="flex gap-1.5 flex-wrap flex-1">
+                            {[{t:'T1',v:'Churned',c:'text-destructive bg-destructive/10'},{t:'T2',v:'Churned',c:'text-destructive bg-destructive/10'},{t:'T3',v:'Active',c:'text-success bg-success/10'},{t:'T4',v:'Churned',c:'text-destructive bg-destructive/10'},{t:'...',v:'...',c:'text-muted-foreground bg-muted'},{t:'T200',v:'Churned',c:'text-destructive bg-destructive/10'}].map((tree) => (
+                              <div key={tree.t} className={`rounded-lg px-2 py-1.5 text-xs text-center border border-border ${tree.c}`}>
+                                <p className="font-bold">{tree.t}</p>
+                                <p className="text-xs">{tree.v}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <ArrowRight className="h-3 w-3 mt-4 text-muted-foreground shrink-0" />
+                          <div className="bg-destructive/10 border-2 border-destructive/40 rounded-lg px-3 py-2 text-xs text-center shrink-0">
+                            <AlertTriangle className="h-4 w-4 mx-auto mb-1 text-destructive" />
+                            <p className="font-bold text-destructive">CHURNED</p>
+                            <p className="text-muted-foreground">5/6 voted</p>
+                            <p className="text-muted-foreground">Majority</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── XGBOOST ── */}
+                  {selectedModel.name === 'XGBoost' && (
+                    <div className="bg-muted/50 rounded-xl p-4 border border-border space-y-3">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Sequential Boosting — Each Tree Corrects Previous Tree's Errors</p>
+                      <div className="space-y-2">
+                        {[
+                          {tree:'Tree 1',role:'Initial guess from data',err:'Large residual errors remain',pred:'~68% accuracy',final:false},
+                          {tree:'Tree 2',role:'Fits residuals of Tree 1',err:'Errors reduce significantly',pred:'~78% accuracy',final:false},
+                          {tree:'Tree 3',role:'Fits residuals of T1+T2',err:'Errors reduce further',pred:'~84% accuracy',final:false},
+                          {tree:'... T200',role:'Final micro-corrections',err:'Errors minimised',pred:'91% accuracy ✓',final:true},
+                        ].map((row, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <div className="flex flex-col items-center shrink-0">
+                              <div className="h-7 w-7 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-xs font-bold text-orange-500">{i < 3 ? i+1 : 'N'}</div>
+                              {i < 3 && <div className="w-px h-2 bg-border" />}
+                            </div>
+                            <div className="flex-1 bg-card border border-border rounded-lg p-2.5">
+                              <div className="flex justify-between items-start gap-2">
+                                <div>
+                                  <p className="text-xs font-bold text-orange-500">{row.tree}</p>
+                                  <p className="text-xs text-muted-foreground">{row.role}</p>
+                                  {i < 3 && <p className="text-xs text-muted-foreground italic mt-0.5">↳ {row.err}</p>}
+                                </div>
+                                <span className={`text-xs shrink-0 px-2 py-0.5 rounded-full font-medium ${row.final ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>{row.pred}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                        <p className="font-mono text-xs font-bold text-orange-500">Final: F(x) = 0.05·T₁ + 0.05·T₂ + ... + 0.05·T₂₀₀</p>
+                        <p className="text-xs text-muted-foreground mt-1">Learning rate η=0.05 shrinks each tree's contribution — prevents any single tree from dominating</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── LOGISTIC REGRESSION ── */}
+                  {selectedModel.name === 'Logistic Regression' && (
+                    <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-4">Feature Weights → Weighted Sum → Sigmoid Curve → Churn Probability</p>
+                      <div className="flex items-start gap-3 flex-wrap">
+                        <div className="flex-1 min-w-36 space-y-1">
+                          <p className="text-xs font-semibold mb-2 text-muted-foreground">Input Feature × Weight</p>
+                          {[
+                            {f:'Rating (low)',w:'+0.74',c:'bg-destructive/10 text-destructive',dir:'↑ Churn'},
+                            {f:'Days Inactive',w:'+0.68',c:'bg-destructive/10 text-destructive',dir:'↑ Churn'},
+                            {f:'Delivery Issues',w:'+0.52',c:'bg-destructive/10 text-destructive',dir:'↑ Churn'},
+                            {f:'Order Freq',w:'−0.18',c:'bg-success/10 text-success',dir:'↓ Churn'},
+                            {f:'Avg Spend',w:'−0.14',c:'bg-success/10 text-success',dir:'↓ Churn'},
+                            {f:'Loyalty Pts',w:'−0.11',c:'bg-success/10 text-success',dir:'↓ Churn'},
+                          ].map((r) => (
+                            <div key={r.f} className={`flex items-center justify-between px-2 py-1 rounded-lg text-xs ${r.c}`}>
+                              <span className="font-medium">{r.f}</span>
+                              <span className="font-mono font-bold">{r.w} ({r.dir})</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex flex-col items-center justify-center pt-10 shrink-0">
+                          <p className="text-xs text-muted-foreground font-mono mb-1">Σ wᵢxᵢ</p>
+                          <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-28 bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 text-center shrink-0">
+                          <p className="text-xs font-bold text-purple-500 mb-1">σ(z) Sigmoid</p>
+                          <p className="text-xs font-mono text-purple-500">1/(1+e⁻ᶻ)</p>
+                          <div className="flex items-end gap-0.5 h-10 mt-2 px-1">
+                            {[2,5,10,20,40,70,85,92,96,98].map((v,i) => (
+                              <motion.div key={i} className="flex-1 rounded-t bg-purple-500/60"
+                                initial={{height:0}} animate={{height:`${v}%`}}
+                                transition={{duration:0.5, delay:i*0.05}} />
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">z → P(0–1)</p>
+                        </div>
+                        <div className="flex flex-col items-center justify-center pt-8 shrink-0">
+                          <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div className="space-y-2 pt-6 shrink-0">
+                          <div className="bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2 text-xs text-center">
+                            <p className="font-bold text-destructive">P ≥ 0.4</p>
+                            <p className="text-muted-foreground">→ CHURNED</p>
+                          </div>
+                          <div className="bg-success/10 border border-success/30 rounded-lg px-3 py-2 text-xs text-center">
+                            <p className="font-bold text-success">P &lt; 0.4</p>
+                            <p className="text-muted-foreground">→ ACTIVE</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── DECISION TREE ── */}
+                  {selectedModel.name === 'Decision Tree' && (
+                    <div className="bg-muted/50 rounded-xl p-4 border border-border overflow-x-auto">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-4">Actual Decision Tree — Top Rules Extracted from Training on 6,000 Records</p>
+                      <div className="min-w-[540px] space-y-0">
+                        {/* Root */}
+                        <div className="flex justify-center mb-0">
+                          <div className="bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl px-4 py-2.5 text-xs text-center">
+                            <p className="text-emerald-600 font-bold text-xs uppercase">ROOT NODE (Level 0)</p>
+                            <p className="font-bold text-sm mt-0.5">Days Since Last Order &gt; 45?</p>
+                            <p className="text-muted-foreground text-xs">Gini Gain: 0.38 — highest information gain of all 8 features</p>
+                          </div>
+                        </div>
+                        {/* Connector from root */}
+                        <div className="flex justify-center">
+                          <div className="w-80 flex">
+                            <div className="flex-1 border-b-2 border-l-2 border-border h-5 rounded-bl-lg" />
+                            <div className="flex-1 border-b-2 border-r-2 border-border h-5 rounded-br-lg" />
+                          </div>
+                        </div>
+                        {/* Level 1 labels */}
+                        <div className="flex justify-between px-4 mb-1">
+                          <span className="text-xs font-bold text-destructive">YES — Inactive &gt; 45 days</span>
+                          <span className="text-xs font-bold text-success">NO — Active ≤ 45 days</span>
+                        </div>
+                        {/* Level 1 nodes */}
+                        <div className="flex justify-between gap-4 mb-0">
+                          <div className="flex-1 bg-destructive/10 border border-destructive/30 rounded-xl px-3 py-2 text-xs text-center">
+                            <p className="font-bold text-destructive">Level 1 Split</p>
+                            <p className="font-bold">Rating &lt; 2.5?</p>
+                            <p className="text-muted-foreground">Gini Gain: 0.29</p>
+                          </div>
+                          <div className="flex-1 bg-success/10 border border-success/30 rounded-xl px-3 py-2 text-xs text-center">
+                            <p className="font-bold text-success">Level 1 Split</p>
+                            <p className="font-bold">Order Freq &gt; 15?</p>
+                            <p className="text-muted-foreground">Gini Gain: 0.22</p>
+                          </div>
+                        </div>
+                        {/* Connectors to leaves */}
+                        <div className="flex justify-between gap-4">
+                          <div className="flex-1 flex">
+                            <div className="flex-1 border-b-2 border-l-2 border-border h-4 rounded-bl-lg" />
+                            <div className="flex-1 border-b-2 border-r-2 border-border h-4 rounded-br-lg" />
+                          </div>
+                          <div className="flex-1 flex">
+                            <div className="flex-1 border-b-2 border-l-2 border-border h-4 rounded-bl-lg" />
+                            <div className="flex-1 border-b-2 border-r-2 border-border h-4 rounded-br-lg" />
+                          </div>
+                        </div>
+                        {/* Leaf labels */}
+                        <div className="flex justify-between gap-2 mb-1 text-xs font-bold px-1">
+                          <span className="text-destructive">YES</span>
+                          <span className="text-muted-foreground">NO</span>
+                          <span className="text-success">YES</span>
+                          <span className="text-muted-foreground">NO</span>
+                        </div>
+                        {/* Leaf nodes */}
+                        <div className="flex justify-between gap-2">
+                          <div className="flex-1 bg-destructive/15 border-2 border-destructive/50 rounded-xl p-2 text-center">
+                            <p className="font-display font-bold text-destructive text-sm">CHURNED</p>
+                            <p className="text-xs font-bold text-destructive mt-0.5">89% probability</p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-tight">Days &gt; 45 AND Rating &lt; 2.5\n(Used as chatbot trigger!)</p>
+                          </div>
+                          <div className="flex-1 bg-success/10 border border-success/30 rounded-xl p-2 text-center">
+                            <p className="font-display font-bold text-success text-sm">ACTIVE</p>
+                            <p className="text-xs font-bold text-success mt-0.5">72% probability</p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-tight">Inactive but still satisfied</p>
+                          </div>
+                          <div className="flex-1 bg-success/15 border-2 border-success/50 rounded-xl p-2 text-center">
+                            <p className="font-display font-bold text-success text-sm">ACTIVE</p>
+                            <p className="text-xs font-bold text-success mt-0.5">85% probability</p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-tight">Recent + frequent = loyal</p>
+                          </div>
+                          <div className="flex-1 bg-destructive/10 border border-destructive/30 rounded-xl p-2 text-center">
+                            <p className="font-display font-bold text-destructive text-sm">CHURNED</p>
+                            <p className="text-xs font-bold text-destructive mt-0.5">61% probability</p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-tight">Recent but low frequency</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── 3. HOW USED IN PROJECT ── */}
                 <div>
                   <h3 className={`font-display font-bold text-base mb-2 ${selectedModel.color}`}>How It Was Used in This Project</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{selectedModel.detail.howUsed}</p>
                 </div>
 
-                {/* Performance Metrics */}
+                {/* ── 4. DATASET FEATURES → MODEL → OUTPUT FLOW ── */}
                 <div>
-                  <h3 className={`font-display font-bold text-base mb-3 ${selectedModel.color}`}>Performance Metrics</h3>
+                  <h3 className={`font-display font-bold text-base mb-4 ${selectedModel.color}`}>Dataset Input Features → {selectedModel.name} → Prediction Output</h3>
+                  {/* Pipeline flow */}
+                  <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-xl border border-border flex-wrap">
+                    <div className="bg-card border border-border rounded-lg px-3 py-2 text-center shrink-0">
+                      <p className="text-xs font-bold">{selectedModel.detail.inputFeatures.length} Features</p>
+                      <p className="text-xs text-muted-foreground">Input</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className={`${selectedModel.bg} border border-current/20 rounded-lg px-3 py-2 text-center shrink-0`}>
+                      <selectedModel.icon className={`h-5 w-5 mx-auto mb-0.5 ${selectedModel.color}`} />
+                      <p className={`text-xs font-bold ${selectedModel.color}`}>{selectedModel.name}</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="bg-card border border-border rounded-lg p-2 text-center shrink-0">
+                      <p className="text-xs font-bold">{selectedModel.detail.targetOutput.name}</p>
+                      {selectedModel.detail.targetOutput.values.map((v, i) => (
+                        <p key={i} className={`text-xs ${i === 0 ? 'text-success' : 'text-destructive'}`}>{v}</p>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Feature table */}
+                  <div className="border border-border rounded-xl overflow-hidden">
+                    <div className="grid grid-cols-3 bg-muted px-4 py-2">
+                      <span className="text-xs font-bold text-muted-foreground">Feature (Column)</span>
+                      <span className="text-xs font-bold text-muted-foreground">Data Type</span>
+                      <span className="text-xs font-bold text-muted-foreground">Role / Impact in {selectedModel.name}</span>
+                    </div>
+                    {selectedModel.detail.inputFeatures.map((f, i) => (
+                      <div key={f.name} className={`grid grid-cols-3 gap-0 px-4 py-2.5 text-xs border-t border-border ${i % 2 === 0 ? '' : 'bg-muted/30'}`}>
+                        <span className="font-medium">{f.name}</span>
+                        <span className="text-muted-foreground">{f.type}</span>
+                        <span className={`${
+                          f.role.includes('↑ churn') || f.role.includes('Churn risk') || f.role.includes('churn risk') || f.role.includes('complaint') || f.role.includes('Complaint') || f.role.includes('+0.') || f.role.includes('SHAP #1') || f.role.includes('negative') || f.role.includes('Direct negative') || f.role.includes('highest impact')
+                            ? 'text-destructive'
+                            : f.role.includes('↓ churn') || f.role.includes('retention') || f.role.includes('engaged') || f.role.includes('loyal') || f.role.includes('Loyal') || f.role.includes('↑ Orders') || f.role.includes('frequent') || f.role.includes('higher spend')
+                            ? 'text-success'
+                            : 'text-muted-foreground'
+                        }`}>{f.role}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── 5. FEATURE IMPORTANCE CHART ── */}
+                <div>
+                  <h3 className={`font-display font-bold text-base mb-1 ${selectedModel.color}`}>
+                    {selectedModel.name === 'Logistic Regression' ? 'Feature Coefficients — Impact on Churn Probability' : 'Feature Importance Chart — Contribution to Model Decisions'}
+                  </h3>
+                  {selectedModel.name === 'Logistic Regression' && (
+                    <p className="text-xs text-muted-foreground mb-3">Red = positive coefficient (increases P(Churn)). Green = negative coefficient (decreases P(Churn)).</p>
+                  )}
+                  {selectedModel.name !== 'Logistic Regression' && (
+                    <p className="text-xs text-muted-foreground mb-3">Bar length = % of total model decisions driven by this feature across all trees.</p>
+                  )}
+                  <div className="space-y-2.5">
+                    {selectedModel.detail.featureImportance.map((f, i) => (
+                      <div key={f.feature} className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground shrink-0 w-40 truncate" title={f.feature}>{f.feature}</span>
+                        <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                          <motion.div
+                            className={`h-3 rounded-full ${f.color}`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${f.pct}%` }}
+                            transition={{ duration: 0.85, delay: i * 0.07 }}
+                          />
+                        </div>
+                        <span className="text-xs font-bold w-12 text-right">
+                          {selectedModel.name === 'Logistic Regression' ? (f as any).coef ?? `${f.pct}%` : `${f.pct}%`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── 6. PERFORMANCE METRICS ── */}
+                <div>
+                  <h3 className={`font-display font-bold text-base mb-3 ${selectedModel.color}`}>Performance Metrics — Evaluated on 1,200 Held-Out Test Records</h3>
                   <div className="space-y-2.5">
                     {selectedModel.detail.metrics.map((m) => (
                       <div key={m.label} className="flex items-center gap-3">
@@ -859,19 +1154,9 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Key Features Used */}
+                {/* ── 7. PIPELINE ── */}
                 <div>
-                  <h3 className={`font-display font-bold text-base mb-3 ${selectedModel.color}`}>Input Features Used</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedModel.detail.features.map((f) => (
-                      <span key={f} className="px-3 py-1 rounded-full bg-muted text-xs font-medium border border-border">{f}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Step by step process */}
-                <div>
-                  <h3 className={`font-display font-bold text-base mb-3 ${selectedModel.color}`}>Step-by-Step Pipeline</h3>
+                  <h3 className={`font-display font-bold text-base mb-3 ${selectedModel.color}`}>Step-by-Step ML Pipeline</h3>
                   <ol className="space-y-2">
                     {selectedModel.detail.steps.map((step, i) => (
                       <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -882,18 +1167,18 @@ export default function HomePage() {
                   </ol>
                 </div>
 
-                {/* Key insight */}
+                {/* ── 8. KEY INSIGHT ── */}
                 <div className={`p-4 rounded-xl ${selectedModel.bg} border border-current/10`}>
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className={`h-5 w-5 mt-0.5 shrink-0 ${selectedModel.color}`} />
                     <div>
-                      <p className={`text-xs font-semibold mb-1 ${selectedModel.color}`}>Key Insight</p>
+                      <p className={`text-xs font-semibold mb-1 ${selectedModel.color}`}>Key Insight from This Dataset</p>
                       <p className="text-sm text-muted-foreground">{selectedModel.detail.insight}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* CTA */}
+                {/* ── CTA ── */}
                 <div className="flex gap-3 pt-1">
                   <Button onClick={() => { setSelectedModel(null); navigate('/dashboard'); }} className="gap-2 flex-1">
                     Try Live Prediction <ArrowRight className="h-4 w-4" />

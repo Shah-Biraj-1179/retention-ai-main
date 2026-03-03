@@ -6,7 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import ChatbotPage from "./pages/ChatbotPage";import ResetPasswordPage from './pages/ResetPasswordPage';import NotFound from "./pages/NotFound";
+import ChatbotPage from "./pages/ChatbotPage";
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import NotFound from "./pages/NotFound";
+import FeaturePage from './pages/FeaturePage';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/chatbot" element={<ChatbotPage />} />
+          <Route path="/features/:id" element={<FeaturePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
