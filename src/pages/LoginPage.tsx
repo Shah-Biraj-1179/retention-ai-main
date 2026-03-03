@@ -16,26 +16,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
-  const [forgotDialogOpen, setForgotDialogOpen] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const handleForgotPassword = () => {
-    setResetEmail(email);
-    setForgotDialogOpen(true);
-  };
-
-  const handleSendReset = () => {
-    if (!resetEmail) {
-      toast({ title: 'Enter your email', description: 'Please enter an email address to send the reset link.', variant: 'destructive' });
-      return;
-    }
-    setForgotSent(true);
-    setForgotDialogOpen(false);
-    toast({ title: 'Reset link sent!', description: `Check ${resetEmail} for password reset instructions.` });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,3 +151,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
