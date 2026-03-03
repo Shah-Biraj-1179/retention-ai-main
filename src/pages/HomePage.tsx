@@ -272,12 +272,12 @@ export default function HomePage() {
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Sparkles className="h-3.5 w-3.5" />
-                Built with ML + Gemini AI
+                Predict. Retain. Grow.
               </div>
               <h1 className="text-4xl md:text-5xl xl:text-6xl font-display font-bold mb-5 leading-tight">
-                Stop Losing{' '}
-                <span className="text-gradient">Food Delivery</span>{' '}
-                Customers
+                Turn Customer Data Into{' '}
+                <span className="text-gradient">Retention</span>{' '}
+                Intelligence
               </h1>
               <p className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed">
                 FoodRetainAI identifies at-risk customers before they leave — using machine learning models trained on 6,000+ real behavioral records, paired with an AI chatbot that re-engages them automatically.
@@ -313,36 +313,6 @@ export default function HomePage() {
               className="hidden lg:block"
             >
               <div className="relative">
-                {/* Floating card: Churn Alert */}
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
-                  className="absolute -top-5 -left-6 z-10 bg-card border border-border rounded-xl px-4 py-3 shadow-elevated flex items-center gap-3"
-                >
-                  <div className="h-8 w-8 rounded-lg bg-destructive/15 flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-destructive" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold">Churn Alert</p>
-                    <p className="text-xs text-muted-foreground">142 customers at risk</p>
-                  </div>
-                </motion.div>
-
-                {/* Floating card: Prediction */}
-                <motion.div
-                  animate={{ y: [0, 8, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 0.5 }}
-                  className="absolute -bottom-4 -right-6 z-10 bg-card border border-border rounded-xl px-4 py-3 shadow-elevated flex items-center gap-3"
-                >
-                  <div className="h-8 w-8 rounded-lg bg-success/15 flex items-center justify-center">
-                    <Brain className="h-4 w-4 text-success" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold">ML Prediction</p>
-                    <p className="text-xs text-muted-foreground">Accuracy: 92%</p>
-                  </div>
-                </motion.div>
-
                 {/* Main dashboard mock */}
                 <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
                   {/* Top bar */}
@@ -371,10 +341,11 @@ export default function HomePage() {
                     <p className="text-xs text-muted-foreground mb-2 font-medium">Churn by City</p>
                     <div className="space-y-1.5">
                       {[
-                        { city: 'Mumbai', pct: 82, color: 'bg-primary' },
-                        { city: 'Delhi', pct: 68, color: 'bg-orange-400' },
-                        { city: 'Bangalore', pct: 54, color: 'bg-purple-500' },
-                        { city: 'Chennai', pct: 40, color: 'bg-success' },
+                        { city: 'Karachi',   pct: 80, color: 'bg-primary' },
+                        { city: 'Lahore',    pct: 72, color: 'bg-orange-400' },
+                        { city: 'Islamabad', pct: 58, color: 'bg-purple-500' },
+                        { city: 'Peshawar',  pct: 48, color: 'bg-chart-blue' },
+                        { city: 'Multan',    pct: 38, color: 'bg-success' },
                       ].map((row) => (
                         <div key={row.city} className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground w-16 shrink-0">{row.city}</span>
