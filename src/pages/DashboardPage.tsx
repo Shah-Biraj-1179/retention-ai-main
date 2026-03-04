@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -6,6 +6,7 @@ import {
   Star, Package, Activity, X, ChevronRight, Upload, Brain, FileBarChart2,
   LayoutDashboard, ClipboardList, Target, Lightbulb, AlertCircle, CheckCircle2,
   TrendingUp as TrendUp, ArrowUpRight, ArrowDownRight, Download, Menu,
+  Trash2, AlertTriangle, Shield,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -14,6 +15,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { getAllUsers, deleteUser, getSession, type LocalUser } from '@/lib/localAuth';
 import { loadDataset, computeStats, preprocessRecords, type CustomerRecord, type DatasetStats } from '@/lib/dataset';
 import { ChurnCharts } from '@/components/ChurnCharts';
 import { PredictionForm } from '@/components/PredictionForm';
@@ -31,9 +36,22 @@ export default function DashboardPage() {
   const [dataFilter, setDataFilter] = useState<'All' | 'Active' | 'Churned'>('All');
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [accounts, setAccounts] = useState<LocalUser[]>([]);
+  const [accountsOpen, setAccountsOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<LocalUser | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const session = getSession();
+  const currentInitials = (session?.name ?? 'U')
+    .split(' ')
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .slice(0, 2)
+    .join('');
+
+  const refreshAccounts = useCallback(() => setAccounts(getAllUsers()), []);
 
   useEffect(() => {
     loadDataset().then((records) => {
@@ -42,6 +60,8 @@ export default function DashboardPage() {
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => { refreshAccounts(); }, [refreshAccounts]);
 
   const goToTab = (tab: 'overview' | 'eda' | 'predict' | 'insights' | 'data' | 'reports', filter?: 'All' | 'Active' | 'Churned') => {
     setActiveTab(tab);
@@ -398,12 +418,127 @@ export default function DashboardPage() {
             <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8" onClick={() => navigate('/chatbot')}>
               <MessageSquare className="h-3.5 w-3.5" /> AI Chatbot
             </Button>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8" onClick={() => navigate('/')}>
-              <LogOut className="h-3.5 w-3.5" /> Logout
-            </Button>
+
+            {/* ── Accounts Avatar Dropdown ── */}
+            <Popover open={accountsOpen} onOpenChange={(o) => { setAccountsOpen(o); if (o) refreshAccounts(); }}>
+              <PopoverTrigger asChild>
+                <button
+                  className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold hover:opacity-90 transition-opacity ring-2 ring-primary/30 focus:outline-none"
+                  title="Accounts"
+                >
+                  {currentInitials}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" sideOffset={8} className="w-80 p-0 overflow-hidden">
+                {/* Current user header */}
+                <div className="bg-primary/8 px-4 py-3 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                      {currentInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{session?.name ?? '—'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{session?.email ?? '—'}</p>
+                    </div>
+                    <Shield className="h-4 w-4 text-primary ml-auto flex-shrink-0" />
+                  </div>
+                </div>
+
+                {/* All accounts list */}
+                <div className="max-h-64 overflow-y-auto">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-4 pt-3 pb-1">
+                    All Accounts · {accounts.length}
+                  </p>
+                  {accounts.length === 0 && (
+                    <p className="text-xs text-muted-foreground px-4 py-3">No accounts found.</p>
+                  )}
+                  {accounts.map((acc) => {
+                    const ini = acc.name.split(' ').map((w) => w[0]?.toUpperCase() ?? '').slice(0, 2).join('');
+                    const isCurrent = acc.email.toLowerCase() === (session?.email ?? '').toLowerCase();
+                    return (
+                      <div
+                        key={acc.id}
+                        className="flex items-center gap-3 px-4 py-2.5 group hover:bg-muted/40 transition-colors"
+                      >
+                        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                          isCurrent ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
+                        }`}>
+                          {ini || '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {acc.name}{isCurrent && <span className="ml-1 text-[10px] text-primary font-semibold">(you)</span>}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">{acc.email}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setDeleteTarget(acc); setAccountsOpen(false); }}
+                          title="Delete account"
+                          className="flex-shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Footer: logout */}
+                <div className="border-t border-border p-2">
+                  <button
+                    type="button"
+                    onClick={() => { setAccountsOpen(false); navigate('/'); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </nav>
+
+      {/* ── Delete Account Confirmation ── */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+              </div>
+              <AlertDialogTitle>Delete Account Permanently?</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleteTarget?.name}</strong>{' '}
+              (<span className="font-mono text-xs">{deleteTarget?.email}</span>) and all associated data.
+              This action <strong>cannot be undone</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteTarget(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (!deleteTarget) return;
+                const { error } = deleteUser(deleteTarget.email);
+                if (error) {
+                  toast({ title: 'Delete failed', description: error, variant: 'destructive' });
+                } else {
+                  toast({ title: 'Account deleted', description: `${deleteTarget.name} has been removed.` });
+                  refreshAccounts();
+                }
+                setDeleteTarget(null);
+              }}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="flex flex-1">
         {/* ── Sidebar ── */}
