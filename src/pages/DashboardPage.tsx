@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { getAllUsers, deleteUser, getSession, type LocalUser } from '@/lib/localAuth';
+import { getAllUsers, deleteUser, signOut, switchAccount, getSession, type LocalUser } from '@/lib/localAuth';
 import { loadDataset, computeStats, preprocessRecords, type CustomerRecord, type DatasetStats } from '@/lib/dataset';
 import { ChurnCharts } from '@/components/ChurnCharts';
 import { PredictionForm } from '@/components/PredictionForm';
@@ -458,10 +458,23 @@ export default function DashboardPage() {
                     return (
                       <div
                         key={acc.id}
-                        className="flex items-center gap-3 px-4 py-2.5 group hover:bg-muted/40 transition-colors"
+                        onClick={() => {
+                          if (isCurrent) return;
+                          const { error } = switchAccount(acc.email);
+                          if (!error) {
+                            setAccountsOpen(false);
+                            // Force full re-mount so session state refreshes
+                            navigate(0);
+                          }
+                        }}
+                        className={`flex items-center gap-3 px-4 py-2.5 group transition-colors ${
+                          isCurrent
+                            ? 'cursor-default'
+                            : 'cursor-pointer hover:bg-primary/8 active:bg-primary/15'
+                        }`}
                       >
                         <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                          isCurrent ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
+                          isCurrent ? 'bg-primary text-white' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors'
                         }`}>
                           {ini || '?'}
                         </div>
@@ -471,9 +484,14 @@ export default function DashboardPage() {
                           </p>
                           <p className="text-xs text-muted-foreground truncate">{acc.email}</p>
                         </div>
+                        {!isCurrent && (
+                          <span className="text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mr-1">
+                            Switch
+                          </span>
+                        )}
                         <button
                           type="button"
-                          onClick={() => { setDeleteTarget(acc); setAccountsOpen(false); }}
+                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(acc); setAccountsOpen(false); }}
                           title="Delete account"
                           className="flex-shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
                         >
@@ -484,11 +502,15 @@ export default function DashboardPage() {
                   })}
                 </div>
 
-                {/* Footer: logout */}
+                {/* Footer: sign out */}
                 <div className="border-t border-border p-2">
                   <button
                     type="button"
-                    onClick={() => { setAccountsOpen(false); navigate('/'); }}
+                    onClick={() => {
+                      setAccountsOpen(false);
+                      signOut();
+                      navigate('/');
+                    }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
                     <LogOut className="h-4 w-4" />
