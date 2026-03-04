@@ -55,7 +55,10 @@ create trigger trg_sessions_updated_at
 
 -- ── 3. chat_messages ──────────────────────────────────────────
 -- Individual messages within a session
-create type if not exists public.message_role as enum ('user', 'assistant');
+do $$ begin
+  create type public.message_role as enum ('user', 'assistant');
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists public.chat_messages (
   id         uuid primary key default uuid_generate_v4(),
@@ -73,7 +76,10 @@ create index if not exists idx_chat_messages_session
 
 -- ── 4. churn_predictions ──────────────────────────────────────
 -- Stores every prediction run from the Predict Churn tab
-create type if not exists public.churn_result as enum ('Active', 'Inactive');
+do $$ begin
+  create type public.churn_result as enum ('Active', 'Inactive');
+exception when duplicate_object then null;
+end $$;
 
 create table if not exists public.churn_predictions (
   id               uuid primary key default uuid_generate_v4(),
