@@ -39,12 +39,12 @@ export default function DashboardPage() {
   const [accounts, setAccounts] = useState<LocalUser[]>([]);
   const [accountsOpen, setAccountsOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<LocalUser | null>(null);
+  const [session, setSession] = useState(() => getSession());
   const tabsRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const session = getSession();
   const currentInitials = (session?.name ?? 'U')
     .split(' ')
     .map((w) => w[0]?.toUpperCase() ?? '')
@@ -372,7 +372,10 @@ export default function DashboardPage() {
       action: 'Partner with faster delivery services; set strict SLA targets.',
     },
     {
-      icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50 border-green-200',
+      icon: ({ className }: { className?: string }) => (
+        <span className={`font-bold leading-none inline-flex items-center justify-center ${className ?? ''}`}>₹</span>
+      ),
+      color: 'text-green-600', bg: 'bg-green-50 border-green-200',
       title: `High spenders (₹75K+) have ${highSpendRetention}% retention rate`,
       detail: 'Premium customers show strong loyalty. Invest in VIP programs to retain high-value segments.',
       action: 'Launch exclusive VIP tier with priority support & perks.',
@@ -462,9 +465,9 @@ export default function DashboardPage() {
                           if (isCurrent) return;
                           const { error } = switchAccount(acc.email);
                           if (!error) {
+                            setSession(getSession());
                             setAccountsOpen(false);
-                            // Force full re-mount so session state refreshes
-                            navigate(0);
+                            toast({ title: `Switched to ${acc.name}`, description: acc.email });
                           }
                         }}
                         className={`flex items-center gap-3 px-4 py-2.5 group transition-colors ${
