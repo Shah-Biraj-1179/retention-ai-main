@@ -221,7 +221,9 @@ describe("database setup and endpoint integration contracts", () => {
     await sendResetEmail(email);
     await verifyResetOtp(email, "123456");
     await updatePasswordViaEdgeFunction(email, "edge-pass-123");
-    const chatStream = await createChatCompletionStream([{ role: "user", content: "Hi" }]);
+    const chatStream = await createChatCompletionStream({
+      messages: [{ role: "user", content: "Hi" }],
+    });
 
     const reader = chatStream.getReader();
     const decoder = new TextDecoder();

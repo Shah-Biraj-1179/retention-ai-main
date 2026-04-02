@@ -1,14 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, CheckCircle, Zap, ShieldAlert, ShieldCheck, Shield,
-  TrendingDown, Star, Package, CreditCard, Target, Lightbulb,
+  TrendingDown, Star, Package, CreditCard, Target, Lightbulb, MessageSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { predictChurn } from '@/lib/dataset';
+import type { ChatPredictionContext } from '@/lib/chatContext';
 import { supabase } from '@/integrations/supabase/client';
 import { getSession } from '@/lib/localAuth';
 
@@ -57,6 +59,7 @@ function RiskBadge({ level }: { level: 'HIGH' | 'MEDIUM' | 'LOW' }) {
 const AGE_GROUPS = ['Young Adult (18-25)', 'Adult (26-40)', 'Middle Age (41-55)', 'Senior (56+)'];
 
 export function PredictionForm() {
+  const navigate = useNavigate();
   const [orders, setOrders]         = useState(20);
   const [spend, setSpend]           = useState(45000);
   const [rating, setRating]         = useState([3.5]);
@@ -64,14 +67,54 @@ export function PredictionForm() {
   const [loyaltyPoints, setLoyalty] = useState(120);
   const [ageGroup, setAgeGroup]     = useState('Adult (26-40)');
   const [result, setResult]         = useState<PredictResult | null>(null);
+  const [chatPredictionContext, setChatPredictionContext] = useState<ChatPredictionContext | null>(null);
   const [running, setRunning]       = useState(false);
+
+  const buildChatPredictionContext = (
+    predictionResult: PredictResult,
+    profile: {
+      totalOrders: number;
+      totalSpend: number;
+      rating: number;
+      deliveryDelayMinutes: number;
+      loyaltyPoints: number;
+      ageGroup: string;
+    },
+  ): ChatPredictionContext => ({
+    createdAt: new Date().toISOString(),
+    customerProfile: {
+      totalOrders: profile.totalOrders,
+      totalSpend: profile.totalSpend,
+      rating: profile.rating,
+      deliveryDelayMinutes: profile.deliveryDelayMinutes,
+      loyaltyPoints: profile.loyaltyPoints,
+      ageGroup: profile.ageGroup,
+    },
+    assessment: {
+      prediction: predictionResult.prediction,
+      confidence: predictionResult.confidence,
+      riskLevel: predictionResult.riskLevel,
+      factors: predictionResult.factors,
+      strategies: predictionResult.strategies,
+    },
+  });
 
   const handlePredict = () => {
     setRunning(true);
     const ag = ageGroup.includes('Senior') ? 'Senior' : 'Adult';
+    const predictionInput = {
+      totalOrders: orders,
+      totalSpend: spend,
+      rating: rating[0],
+      deliveryDelayMinutes: delay,
+      loyaltyPoints,
+      ageGroup,
+    };
+
     setTimeout(() => {
       const res = predictChurn(orders, spend, rating[0], delay, loyaltyPoints, ag);
       setResult(res);
+      setChatPredictionContext(buildChatPredictionContext(res, predictionInput));
       setRunning(false);
 
       // Persist prediction to Supabase churn_predictions table
@@ -79,16 +122,27 @@ export function PredictionForm() {
       if (userSession) {
         supabase.from('churn_predictions').insert({
           user_email: userSession.email,
-          order_frequency: orders,
-          price: spend,
-          rating: rating[0],
-          loyalty_points: loyaltyPoints,
+          age: predictionInput.ageGroup,
+          order_frequency: predictionInput.totalOrders,
+          price: predictionInput.totalSpend,
+          rating: predictionInput.rating,
+          loyalty_points: predictionInput.loyaltyPoints,
           prediction: (res.riskLevel === 'LOW' ? 'Active' : 'Inactive') as 'Active' | 'Inactive',
           confidence: res.confidence,
           model_used: 'Rule-Based Ensemble',
         }).then(({ error }) => { if (error) console.error('Failed to save prediction:', error); });
       }
     }, 600);
+  };
+
+  const openRetentionChat = () => {
+    if (!result || !chatPredictionContext) return;
+
+    navigate('/chatbot', {
+      state: {
+        currentPrediction: chatPredictionContext,
+      },
+    });
   };
 
   const ratingStars = (val: number) =>
@@ -296,6 +350,11 @@ export function PredictionForm() {
                       ))}
                     </ul>
                   </div>
+
+                  <Button onClick={openRetentionChat} className="w-full gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Open AI Chat With This Prediction
+                  </Button>
 
                   {/* Score bands */}
                   <div className="grid grid-cols-3 gap-2 text-center">

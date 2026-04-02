@@ -1,4 +1,4 @@
-type ChatMessage = { role: string; content: string };
+import type { ChatCompletionRequest } from '@/lib/chatContext';
 
 function getSupabaseUrl(): string {
   const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -72,12 +72,12 @@ export async function updatePasswordViaEdgeFunction(email: string, newPassword: 
 }
 
 export async function createChatCompletionStream(
-  messages: ChatMessage[],
+  payload: ChatCompletionRequest,
 ): Promise<ReadableStream<Uint8Array>> {
   const response = await fetch(getFunctionUrl("chat"), {
     method: "POST",
     headers: getFunctionHeaders(),
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
