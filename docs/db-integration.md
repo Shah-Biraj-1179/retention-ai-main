@@ -15,7 +15,7 @@ never touched the database. Every feature is now backed by Supabase.
 | Project ID | `uogfbedhjmcuwehahknh` |
 | Project URL | `https://uogfbedhjmcuwehahknh.supabase.co` |
 | Anon key env var | `VITE_SUPABASE_PUBLISHABLE_KEY` |
-| Service role key env var | `VITE_SUPABASE_SERVICE_KEY` |
+| Service role key env var | `SUPABASE_SERVICE_ROLE_KEY` (Edge Function secret only) |
 
 ---
 
@@ -162,7 +162,7 @@ All Edge Functions live in `supabase/functions/` and are deployed to the Supabas
 
 | Function | Route | Description | Env vars required |
 |---|---|---|---|
-| `chat` | `/functions/v1/chat` | Streams AI responses via OpenAI GPT-4o-mini | `OPENAI_API_KEY` |
+| `chat` | `/functions/v1/chat` | Streams AI responses via Gemini 2.5 with Supabase-backed context | `GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 | `send-reset-email` | `/functions/v1/send-reset-email` | Generate + store OTP, send email via Resend | `RESEND_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | `verify-reset-otp` | `/functions/v1/verify-reset-otp` | Validate OTP from DB, delete on success | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | `update-password` | `/functions/v1/update-password` | Update password via Supabase Auth Admin API | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
@@ -176,21 +176,33 @@ All Edge Functions live in `supabase/functions/` and are deployed to the Supabas
 
 ## Environment Variables Required
 
-Set these in `.env` (already present and configured):
+Set these in the root `.env`:
 
 ```env
 VITE_SUPABASE_PROJECT_ID="uogfbedhjmcuwehahknh"
 VITE_SUPABASE_URL="https://uogfbedhjmcuwehahknh.supabase.co"
 VITE_SUPABASE_PUBLISHABLE_KEY="<anon key>"
-VITE_SUPABASE_SERVICE_KEY="<service role key>"
+GEMINI_API_KEY="<gemini key>"
+SUPABASE_SERVICE_ROLE_KEY="<service role key>"
 ```
 
 Set these as **Supabase Edge Function secrets** (via Dashboard → Edge Functions → Secrets):
 
 ```
-OPENAI_API_KEY=<your OpenAI key>
+GEMINI_API_KEY=<your Gemini key>
+SUPABASE_SERVICE_ROLE_KEY=<your service role key>
 RESEND_API_KEY=<your Resend key>
 ```
+
+Keep `GEMINI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` non-`VITE_` so they are not exposed to the browser.
+
+For hosted functions, sync the root `.env` values with:
+
+```bash
+supabase secrets set --env-file .env --project-ref uogfbedhjmcuwehahknh
+```
+
+`supabase/functions/.env` is optional for local `supabase functions serve ...` workflows.
 
 ---
 
@@ -214,7 +226,7 @@ Forgot Password:
 
 Chat:
   Mount ───────────────────────► chat_sessions (INSERT → get id)
-  Send/Receive ────────────────► chat (Edge Fn → OpenAI stream)
+  Send/Receive ────────────────► chat (Edge Fn → Gemini stream)
   onDone ──────────────────────► chat_messages (INSERT user + assistant)
 
 Predict Churn:
