@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DashboardPage.tsx – Full Code Explanation | FoodRetainAI</title>
+  <style>
+    /* ── Global Reset & Font ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+
+    /* ── Print Styles ── */
+    @media print {
+      body { background: white; font-size: 12px; }
+      .no-print { display: none !important; }
+      .page-break { page-break-before: always; }
+      .card { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+      header { background: #1e293b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .section-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 36px 40px 28px;
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 28px;
+    }
+    header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    header p  { color: #94a3b8; margin-top: 6px; font-size: 14px; }
+    .meta-row { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+    .meta-item { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 14px; font-size: 12px; color: #cbd5e1; }
+    .meta-item span { color: #38bdf8; font-weight: 700; }
+
+    /* ── Print Button ── */
+    .print-btn {
+      display: inline-block; background: #3b82f6; color: white; border: none;
+      padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; margin-bottom: 20px; text-decoration: none;
+    }
+    .print-btn:hover { background: #2563eb; }
+
+    /* ── Cards ── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-body { padding: 18px 20px; }
+
+    /* ── Section Title ── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin: 28px 0 10px;
+      padding: 4px 12px;
+      border-left: 4px solid;
+      border-radius: 2px;
+    }
+    .st-blue   { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+    .st-green  { border-color: #22c55e; color: #15803d; background: #f0fdf4; }
+    .st-purple { border-color: #a855f7; color: #7e22ce; background: #faf5ff; }
+    .st-orange { border-color: #f97316; color: #c2410c; background: #fff7ed; }
+    .st-red    { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
+    .st-teal   { border-color: #14b8a6; color: #0f766e; background: #f0fdfa; }
+    .st-slate  { border-color: #64748b; color: #334155; background: #f8fafc; }
+    .st-indigo { border-color: #6366f1; color: #3730a3; background: #eef2ff; }
+
+    /* ── Number Badge ── */
+    .num-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%;
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+      background: #3b82f6; color: white;
+    }
+    .num-badge.green  { background: #22c55e; }
+    .num-badge.purple { background: #a855f7; }
+    .num-badge.orange { background: #f97316; }
+    .num-badge.red    { background: #ef4444; }
+
+    /* ── Code Block ── */
+    .code {
+      background: #0f172a; color: #e2e8f0;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 12px; line-height: 1.6;
+      padding: 14px 16px; border-radius: 8px;
+      margin: 10px 0; overflow-x: auto;
+      white-space: pre;
+    }
+    .code .kw  { color: #93c5fd; }   /* keyword  */
+    .code .fn  { color: #86efac; }   /* function */
+    .code .st  { color: #fde68a; }   /* string   */
+    .code .cm  { color: #64748b; }   /* comment  */
+    .code .tp  { color: #f0abfc; }   /* type     */
+
+    /* ── Explanation Row ── */
+    .exp-row {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid #f1f5f9;
+    }
+    .exp-row:last-child { border-bottom: none; }
+    .exp-label {
+      font-size: 11px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      min-width: 80px; flex-shrink: 0; padding-top: 2px;
+    }
+    .exp-text { font-size: 13px; color: #334155; }
+    .exp-code { font-family: 'Consolas', monospace; font-size: 12px; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; color: #0f172a; }
+
+    /* ── Highlight Boxes ── */
+    .info-box  { background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+    .warn-box  { background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+    .tip-box   { background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+    .note-box  { background: #faf5ff; border-left: 4px solid #a855f7; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 13px; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    tr:hover td { background: #f8fafc; }
+
+    /* ── badge ── */
+    .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-green  { background: #dcfce7; color: #15803d; }
+    .badge-purple { background: #f3e8ff; color: #7e22ce; }
+    .badge-orange { background: #ffedd5; color: #c2410c; }
+    .badge-red    { background: #fee2e2; color: #b91c1c; }
+    .badge-gray   { background: #f1f5f9; color: #475569; }
+
+    /* ── Flow Diagram (CSS only) ── */
+    .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+    .flow-box {
+      background: #eff6ff; border: 1.5px solid #93c5fd;
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 12px; font-weight: 600; color: #1d4ed8;
+    }
+    .flow-box.green  { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+    .flow-box.purple { background: #faf5ff; border-color: #d8b4fe; color: #7e22ce; }
+    .flow-box.orange { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+    .flow-box.red    { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+    .flow-arrow      { color: #94a3b8; font-size: 18px; font-weight: 700; }
+
+    /* ── Grid ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ── Mini cards ── */
+    .mini-card { background: white; border-radius: 10px; padding: 14px 16px; border: 1px solid #e2e8f0; }
+    .mini-card h4 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #1e293b; }
+    .mini-card p  { font-size: 12px; color: #64748b; }
+
+    /* ── TOC ── */
+    .toc { background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); padding: 20px; margin-bottom: 24px; }
+    .toc h3 { font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin: 5px 0; font-size: 13px; color: #3b82f6; }
+    .toc li a { color: #3b82f6; text-decoration: none; }
+    .toc li a:hover { text-decoration: underline; }
+
+    h2 { font-size: 18px; font-weight: 800; color: #0f172a; }
+    h3 { font-size: 15px; font-weight: 700; color: #1e293b; margin-top: 4px; }
+    h4 { font-size: 13px; font-weight: 700; color: #334155; }
+    p  { color: #475569; }
+    ul, ol { padding-left: 18px; }
+    li { margin: 4px 0; color: #475569; font-size: 13px; }
+    strong { color: #1e293b; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="max-width:960px;margin:0 auto;">
+    <h1>📊 DashboardPage.tsx — Complete Code Explanation</h1>
+    <p>FoodRetainAI · Customer Churn Prediction & Retention Analytics Platform</p>
+    <div class="meta-row">
+      <div class="meta-item">File: <span>src/pages/DashboardPage.tsx</span></div>
+      <div class="meta-item">Lines: <span>~933</span></div>
+      <div class="meta-item">Language: <span>TypeScript + React (TSX)</span></div>
+      <div class="meta-item">Framework: <span>React 18 + Vite</span></div>
+      <div class="meta-item">Prepared for: <span>College Internal Presentation</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Print Button -->
+  <div class="no-print" style="text-align:right;margin-bottom:16px;">
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <p style="font-size:11px;color:#64748b;margin-top:4px;">Use browser Print → Save as PDF (Ctrl+P)</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TABLE OF CONTENTS
+  ═══════════════════════════════════════════ -->
+  <div class="toc">
+    <h3>📋 Table of Contents</h3>
+    <ol>
+      <li><a href="#s1">Project Overview – What Does This File Do?</a></li>
+      <li><a href="#s2">Imports – All Tools Brought Into This File</a></li>
+      <li><a href="#s3">State Variables – The Memory of the Dashboard</a></li>
+      <li><a href="#s4">Data Loading (useEffect) – How Data Gets Into the App</a></li>
+      <li><a href="#s5">Data Computations – Preparing Charts & Statistics</a></li>
+      <li><a href="#s6">CSV Import Feature – Upload Your Own Dataset</a></li>
+      <li><a href="#s7">Summary Cards – The 8 KPI Counters</a></li>
+      <li><a href="#s8">AI Insights – Smart Pattern Detection</a></li>
+      <li><a href="#s9">UI Structure – Navigation, Sidebar & Tabs</a></li>
+      <li><a href="#s10">Each Tab Explained</a></li>
+      <li><a href="#s11">Card Detail Modal – Click-to-Zoom Charts</a></li>
+      <li><a href="#s12">Full Code Flow Diagram</a></li>
+      <li><a href="#s13">Quick-Reference for Presentation</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 1 – PROJECT OVERVIEW
+  ═══════════════════════════════════════════ -->
+  <div id="s1">
+    <div class="section-title st-blue">1 · Project Overview – What Does This File Do?</div>
+    <div class="card">
+      <div class="card-body">
+        <p><strong>FoodRetainAI</strong> is an AI-powered web application that helps food-delivery businesses understand and prevent customer churn (customers who stop using the service).</p>
+        <br/>
+        <p><code class="exp-code">DashboardPage.tsx</code> is the <strong>heart / brain</strong> of the entire project. It is the page that opens after a user logs in. Everything useful — charts, predictions, insights, data tables, reports — lives inside this single file.</p>
+
+        <div class="info-box" style="margin-top:14px;">
+          <strong>🎯 Simple one-line explanation for your guide:</strong><br/>
+          "DashboardPage.tsx is the main analytics dashboard. It loads a dataset of customers, calculates statistics, shows charts and KPIs, lets users predict if a customer will churn, gives AI-based insights, and generates reports — all in one React component."
+        </div>
+
+        <div class="grid-3" style="margin-top:16px;">
+          <div class="mini-card" style="border-color:#bfdbfe;">
+            <h4>📂 Where does it sit?</h4>
+            <p><code class="exp-code">src/pages/DashboardPage.tsx</code><br/>Navigated to via <code class="exp-code">/dashboard</code> route</p>
+          </div>
+          <div class="mini-card" style="border-color:#bbf7d0;">
+            <h4>🔗 What pages does it use?</h4>
+            <p>Uses components from <code class="exp-code">ChurnCharts</code>, <code class="exp-code">PredictionForm</code>, and utility functions from <code class="exp-code">dataset.ts</code></p>
+          </div>
+          <div class="mini-card" style="border-color:#e9d5ff;">
+            <h4>👤 Who sees it?</h4>
+            <p>Only <strong>logged-in</strong> users. Unauthenticated users are redirected by the router to <code class="exp-code">LoginPage</code></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 2 – IMPORTS
+  ═══════════════════════════════════════════ -->
+  <div id="s2">
+    <div class="section-title st-purple">2 · Imports – All Tools Brought Into This File</div>
+    <div class="card">
+      <div class="card-body">
+        <p>At the very top of the file, we <strong>import</strong> (load) external libraries and internal modules. Think of these as collecting all your tools before starting work.</p>
+
+        <table style="margin-top:12px;">
+          <thead>
+            <tr><th>Import</th><th>From</th><th>What it does in plain English</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="exp-code">useEffect, useRef, useState</code></td>
+              <td><span class="badge badge-blue">react</span></td>
+              <td><strong>React Hooks</strong> — <code class="exp-code">useState</code> stores data, <code class="exp-code">useEffect</code> runs code when the page loads, <code class="exp-code">useRef</code> points to HTML elements</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">Link, useNavigate</code></td>
+              <td><span class="badge badge-blue">react-router-dom</span></td>
+              <td><strong>Navigation:</strong> <code class="exp-code">Link</code> creates clickable links; <code class="exp-code">useNavigate</code> lets us go to another page programmatically (e.g., after logout)</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">motion, AnimatePresence</code></td>
+              <td><span class="badge badge-purple">framer-motion</span></td>
+              <td><strong>Animations</strong> — adds smooth fade-in and slide-up effects to cards and modals</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">BarChart3, LogOut, Users …</code></td>
+              <td><span class="badge badge-gray">lucide-react</span></td>
+              <td><strong>Icon library</strong> — provides all the small SVG icons used throughout the dashboard (e.g., bar chart icon, logout icon, user icon)</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">BarChart, PieChart, LineChart …</code></td>
+              <td><span class="badge badge-orange">recharts</span></td>
+              <td><strong>Chart library</strong> — renders all the bar charts, pie charts, and line charts on the dashboard</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">Button, Card, Badge</code></td>
+              <td><span class="badge badge-gray">@/components/ui</span></td>
+              <td><strong>UI components</strong> — pre-styled buttons, cards, and badge elements (built with shadcn/ui)</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">signOut</code></td>
+              <td><span class="badge badge-red">@/lib/localAuth</span></td>
+              <td><strong>Authentication:</strong> logs the user out and clears their session</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">loadDataset, computeStats, preprocessRecords</code></td>
+              <td><span class="badge badge-green">@/lib/dataset</span></td>
+              <td><strong>Data engine:</strong> loads the CSV dataset, cleans the data, and calculates all statistics (churn rate, averages, etc.)</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">ChurnCharts</code></td>
+              <td><span class="badge badge-green">@/components/ChurnCharts</span></td>
+              <td><strong>EDA chart panel</strong> — a separate component that renders 12+ detailed charts for the "EDA & Charts" tab</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">PredictionForm</code></td>
+              <td><span class="badge badge-purple">@/components/PredictionForm</span></td>
+              <td><strong>ML prediction form</strong> — input form that predicts churn probability for a single customer</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">Papa</code></td>
+              <td><span class="badge badge-orange">papaparse</span></td>
+              <td><strong>CSV parser</strong> — converts a raw <code class="exp-code">.csv</code> file uploaded by the user into JavaScript objects</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 3 – STATE VARIABLES
+  ═══════════════════════════════════════════ -->
+  <div id="s3">
+    <div class="section-title st-green">3 · State Variables – The "Memory" of the Dashboard</div>
+    <div class="card">
+      <div class="card-body">
+        <p>In React, <strong>state variables</strong> are like the RAM of a page — they hold information that can change while the user is interacting with the dashboard. When a state variable changes, React re-renders (re-draws) the relevant part of the page automatically.</p>
+
+        <div class="info-box">
+          <strong>Syntax:</strong> <code class="exp-code">const [variableName, setVariableName] = useState(initialValue);</code><br/>
+          — <code class="exp-code">variableName</code> reads the current value &nbsp;|&nbsp; <code class="exp-code">setVariableName(...)</code> changes it
+        </div>
+
+        <table style="margin-top:14px;">
+          <thead>
+            <tr><th>Variable</th><th>Type</th><th>Initial Value</th><th>Plain English Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="exp-code">data</code></td>
+              <td><span class="badge badge-blue">CustomerRecord[]</span></td>
+              <td><code class="exp-code">[]</code></td>
+              <td>Stores the <strong>full array of customer rows</strong> loaded from the CSV dataset. Each row has customer ID, city, age, orders, rating, delivery status, etc.</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">stats</code></td>
+              <td><span class="badge badge-blue">DatasetStats | null</span></td>
+              <td><code class="exp-code">null</code></td>
+              <td>Stores the <strong>computed statistics</strong> object (total customers, churn rate, average rating, churn by city, etc.) derived from <code class="exp-code">data</code></td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">loading</code></td>
+              <td><span class="badge badge-gray">boolean</span></td>
+              <td><code class="exp-code">true</code></td>
+              <td>Controls whether to show the <strong>loading spinner</strong>. Once the dataset is ready, it becomes <code class="exp-code">false</code></td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">importing</code></td>
+              <td><span class="badge badge-gray">boolean</span></td>
+              <td><code class="exp-code">false</code></td>
+              <td>Becomes <code class="exp-code">true</code> while a user-uploaded CSV is being <strong>parsed</strong>. Disables the import button to prevent double-clicks</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">importStatus</code></td>
+              <td><span class="badge badge-blue">{ ok, msg } | null</span></td>
+              <td><code class="exp-code">null</code></td>
+              <td>Stores the <strong>success/error message</strong> shown after importing a CSV (e.g., "✓ Loaded 5,000 records")</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">importedData</code></td>
+              <td><span class="badge badge-blue">CustomerRecord[] | null</span></td>
+              <td><code class="exp-code">null</code></td>
+              <td>Holds the rows from a <strong>user-uploaded CSV</strong>. Separate from the default <code class="exp-code">data</code> so the table only shows when user explicitly imports</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">activeTab</code></td>
+              <td><span class="badge badge-purple">'overview' | 'eda' | 'predict' | 'insights' | 'data' | 'reports'</span></td>
+              <td><code class="exp-code">'overview'</code></td>
+              <td>Tracks <strong>which section/tab is currently visible</strong>. When this changes, React shows the corresponding tab content</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">dataFilter</code></td>
+              <td><span class="badge badge-purple">'All' | 'Active' | 'Churned'</span></td>
+              <td><code class="exp-code">'All'</code></td>
+              <td>Filters the data table to show <strong>All / only Active / only Churned</strong> customers</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">selectedCard</code></td>
+              <td><span class="badge badge-blue">string | null</span></td>
+              <td><code class="exp-code">null</code></td>
+              <td>When a user clicks a summary card, this stores the card's label (e.g., <code class="exp-code">"Total Customers"</code>), which triggers the <strong>popup modal chart</strong></td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">sidebarOpen</code></td>
+              <td><span class="badge badge-gray">boolean</span></td>
+              <td><code class="exp-code">false</code></td>
+              <td>On <strong>mobile</strong>, controls whether the sidebar navigation is open or hidden</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="tip-box" style="margin-top:12px;">
+          <strong>💡 Key insight for presentation:</strong> All the charts and statistics on the page are <em>derived</em> from just two state variables — <code class="exp-code">data</code> (raw rows) and <code class="exp-code">stats</code> (computed summary). Everything else is UI control logic.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 4 – DATA LOADING
+  ═══════════════════════════════════════════ -->
+  <div id="s4">
+    <div class="section-title st-orange">4 · Data Loading (useEffect) – How Data Gets Into the App</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="code"><span class="kw">useEffect</span>(() => {
+  <span class="fn">loadDataset</span>().<span class="kw">then</span>((records) => {   <span class="cm">// Step 1: Load the CSV</span>
+    <span class="fn">setData</span>(records);                   <span class="cm">// Step 2: Save raw rows</span>
+    <span class="fn">setStats</span>(<span class="fn">computeStats</span>(records));  <span class="cm">// Step 3: Calculate statistics</span>
+    <span class="fn">setLoading</span>(<span class="kw">false</span>);               <span class="cm">// Step 4: Hide loading spinner</span>
+  });
+}, []);   <span class="cm">// [] means: run only ONCE when the page first opens</span></div>
+
+        <div class="grid-2" style="margin-top:14px;">
+          <div>
+            <h4>📌 What is useEffect?</h4>
+            <p><code class="exp-code">useEffect</code> is a React hook that runs code <em>after</em> the component appears on screen. The empty array <code class="exp-code">[]</code> at the end means "run this only once when the page first loads" — not on every re-render.</p>
+          </div>
+          <div>
+            <h4>📌 What does loadDataset() do?</h4>
+            <p>It fetches the file <code class="exp-code">public/data/dataset.csv</code> using the browser's <code class="exp-code">fetch()</code> API, passes it through PapaParse to convert CSV text into JavaScript objects, then cleans/preprocesses the rows.</p>
+          </div>
+        </div>
+
+        <h4 style="margin-top:16px;">📌 Data Flow (Step by Step)</h4>
+        <div class="flow">
+          <div class="flow-box">Page Opens</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">useEffect fires</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">loadDataset() fetches CSV</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box green">Rows saved to <code>data</code></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box purple">computeStats() calculates KPIs</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box orange">Loading spinner hides</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">Dashboard renders</div>
+        </div>
+
+        <h4 style="margin-top:16px;">📌 The Loading State</h4>
+        <div class="code"><span class="kw">if</span> (loading) {
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      <span class="cm">// Shows a pulsing placeholder box with "Loading dataset…"</span>
+      <span class="cm">// The user sees this for ~0.5 seconds while data is fetched</span>
+    &lt;/div&gt;
+  );
+}</div>
+        <p style="margin-top:8px;">While data is loading, the component <strong>returns early</strong> with just a spinner. This prevents the rest of the page from rendering with empty/null data, which would cause errors.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 5 – DATA COMPUTATIONS
+  ═══════════════════════════════════════════ -->
+  <div id="s5">
+    <div class="section-title st-teal">5 · Data Computations – Preparing Charts & Statistics</div>
+    <div class="card">
+      <div class="card-body">
+        <p>After the dataset loads, a series of <strong>compute blocks</strong> prepare the data into formats that the charts can display. These run every time <code class="exp-code">stats</code> or <code class="exp-code">data</code> changes (i.e., when a new CSV is imported).</p>
+
+        <table>
+          <thead><tr><th>Variable</th><th>What it computes</th><th>Used in</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="exp-code">cityChurnData</code></td>
+              <td>Per-city Active vs Churned counts, <strong>sorted by total size</strong>, top 8 cities</td>
+              <td>City breakdown chart in card modal</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">ageChurnData</code></td>
+              <td>Active/Churned/Rate per age group (e.g., "18-24", "25-34"…)</td>
+              <td>Age group churn chart</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">spendBinData</code></td>
+              <td>Groups customer spend into 5 bins: 0-25K, 25K-50K, 50K-75K, 75K-100K, 100K+</td>
+              <td>Spend distribution chart</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">ratingBinData</code></td>
+              <td>Groups ratings into stars 1★ to 5★, counts Active/Churned for each</td>
+              <td>Rating distribution chart</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">freqBinData</code></td>
+              <td>Groups order frequency into 5 bins: 1-5, 6-10, 11-20, 21-30, 30+</td>
+              <td>Order frequency chart</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">loyaltyBinData</code></td>
+              <td>Groups loyalty points into 5 ranges; directly filters <code class="exp-code">data</code> array</td>
+              <td>Loyalty points chart</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">totalPieData</code></td>
+              <td>Simple two-slice array: <code class="exp-code">[{Active: N}, {Churned: N}]</code></td>
+              <td>Total Customers pie chart</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="warn-box" style="margin-top:12px;">
+          <strong>⚠️ Important design note:</strong> These calculations happen <em>inside the component function</em>, not in a useEffect. This means they re-compute on every render. For large datasets this is acceptable because React is efficient — but for even larger data, you would move these into <code class="exp-code">useMemo()</code> hooks.
+        </div>
+
+        <h4 style="margin-top:14px;">📌 Example: How spendBinData is built</h4>
+        <div class="code"><span class="kw">const</span> spendBins = [<span class="st">'0-25K'</span>, <span class="st">'25K-50K'</span>, <span class="st">'50K-75K'</span>, <span class="st">'75K-100K'</span>, <span class="st">'100K+'</span>];
+<span class="kw">const</span> spendBinData = spendBins.<span class="fn">map</span>((label, i) => {
+  <span class="kw">const</span> ranges = [[0,25000],[25000,50000],[50000,75000],[75000,100000],[100000,Infinity]];
+  <span class="kw">const</span> [lo, hi] = ranges[i];
+  <span class="kw">return</span> {
+    range: label,
+    Active:  stats.spendByChurn.active.filter(v => v >= lo && v &lt; hi).length,
+    Churned: stats.spendByChurn.inactive.filter(v => v >= lo && v &lt; hi).length,
+  };
+});</div>
+        <p style="margin-top:8px;">For each spend range, it counts how many <strong>active</strong> customers and how many <strong>churned</strong> customers fall in that range. Recharts then renders this as a grouped bar chart automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 6 – CSV IMPORT
+  ═══════════════════════════════════════════ -->
+  <div id="s6">
+    <div class="section-title st-indigo">6 · CSV Import Feature – Upload Your Own Dataset</div>
+    <div class="card">
+      <div class="card-body">
+        <p>In the <strong>Dataset</strong> tab, users can upload their own <code class="exp-code">.csv</code> file to replace the default dataset. The <code class="exp-code">importCSV</code> function handles this entire process.</p>
+
+        <div class="code"><span class="kw">const</span> <span class="fn">importCSV</span> = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
+  <span class="kw">const</span> file = e.target.files?.[0];        <span class="cm">// Get the selected file</span>
+  <span class="kw">if</span> (!file) <span class="kw">return</span>;
+  <span class="fn">setImporting</span>(<span class="kw">true</span>);                    <span class="cm">// Show "Importing…" on button</span>
+  <span class="kw">const</span> reader = <span class="kw">new</span> <span class="fn">FileReader</span>();
+  reader.<span class="fn">onload</span> = (ev) => {
+    <span class="kw">const</span> text = ev.target?.result;         <span class="cm">// Raw CSV string</span>
+    Papa.<span class="fn">parse</span>(text, {
+      header: <span class="kw">true</span>,                        <span class="cm">// First row = column names</span>
+      skipEmptyLines: <span class="kw">true</span>,
+      dynamicTyping: <span class="kw">true</span>,                 <span class="cm">// Auto-detect numbers</span>
+      complete: (results) => {
+        <span class="kw">const</span> cleaned = <span class="fn">preprocessRecords</span>(results.data);   <span class="cm">// Clean & validate</span>
+        <span class="fn">setData</span>(cleaned);                  <span class="cm">// Update dashboard charts</span>
+        <span class="fn">setStats</span>(<span class="fn">computeStats</span>(cleaned));  <span class="cm">// Recalculate all statistics</span>
+        <span class="fn">setImportedData</span>(cleaned);          <span class="cm">// Show in data table</span>
+        <span class="fn">setImportStatus</span>({ ok: <span class="kw">true</span>, msg: <span class="st">`✓ Loaded ${cleaned.length} records`</span> });
+      },
+    });
+  };
+  reader.<span class="fn">readAsText</span>(file);             <span class="cm">// Start reading the file</span>
+};</div>
+
+        <h4 style="margin-top:14px;">Step-by-step walkthrough:</h4>
+        <table>
+          <thead><tr><th>Step</th><th>What Happens</th></tr></thead>
+          <tbody>
+            <tr><td>1. User clicks "Import CSV"</td><td>The hidden <code class="exp-code">&lt;input type="file"&gt;</code> dialog opens via ref click</td></tr>
+            <tr><td>2. User selects a .csv file</td><td><code class="exp-code">importCSV</code> is called; <code class="exp-code">importing = true</code> disables the button</td></tr>
+            <tr><td>3. FileReader reads the file</td><td>The CSV text is loaded into browser memory</td></tr>
+            <tr><td>4. PapaParse parses it</td><td>CSV text → array of JavaScript objects (one per row)</td></tr>
+            <tr><td>5. preprocessRecords() validates</td><td>Removes duplicates, fills missing ratings, casts number types</td></tr>
+            <tr><td>6. State updates</td><td>All charts and statistics refresh automatically with new data</td></tr>
+            <tr><td>7. Success message shown</td><td>"✓ Loaded 5,000 records from file.csv" appears in green</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 7 – SUMMARY CARDS
+  ═══════════════════════════════════════════ -->
+  <div id="s7">
+    <div class="section-title st-orange">7 · Summary Cards – The 8 KPI Counters</div>
+    <div class="card">
+      <div class="card-body">
+        <p>The Overview tab shows <strong>8 clickable metric cards</strong> — these are Key Performance Indicators (KPIs). Each card shows a single computed number. Clicking one opens a detailed chart popup.</p>
+
+        <div class="code"><span class="kw">const</span> summaryCards = [
+  { icon: Users,        label: <span class="st">'Total Customers'</span>,    value: stats.totalCustomers.toLocaleString() },
+  { icon: TrendingUp,   label: <span class="st">'Active (Retained)'</span>,  value: stats.activeCustomers.toLocaleString() },
+  { icon: TrendingDown, label: <span class="st">'Inactive (Churned)'</span>, value: stats.inactiveCustomers.toLocaleString() },
+  { icon: Activity,     label: <span class="st">'Churn Rate'</span>,         value: `${stats.churnRate.toFixed(1)}%` },
+  { icon: DollarSign,   label: <span class="st">'Total Spend (₹)'</span>,   value: `₹${(stats.totalSpendRupees / 1e6).toFixed(1)}M` },
+  { icon: Star,         label: <span class="st">'Avg Rating'</span>,        value: stats.avgRating.toFixed(2) },
+  { icon: Package,      label: <span class="st">'Avg Orders'</span>,        value: stats.avgOrderFrequency.toFixed(0) },
+  { icon: BarChart3,    label: <span class="st">'Avg Loyalty Points'</span>, value: stats.avgLoyaltyPoints.toFixed(0) },
+];</div>
+
+        <table style="margin-top:14px;">
+          <thead><tr><th>Card Label</th><th>How Value is Computed</th><th>Click Action</th></tr></thead>
+          <tbody>
+            <tr><td>Total Customers</td><td>Count of all rows in dataset</td><td>Opens Pie chart: Active vs Churned</td></tr>
+            <tr><td>Active (Retained)</td><td>Count of rows where <code class="exp-code">churned = 'Active'</code></td><td>Navigates to Dataset tab filtered to Active</td></tr>
+            <tr><td>Inactive (Churned)</td><td>Count of rows where <code class="exp-code">churned = 'Inactive'</code></td><td>Navigates to Dataset tab filtered to Churned</td></tr>
+            <tr><td>Churn Rate</td><td><code class="exp-code">(Inactive / Total) × 100</code></td><td>Opens age-group bar chart</td></tr>
+            <tr><td>Total Spend (₹)</td><td>Sum of all <code class="exp-code">price × 83</code> (USD to INR conversion)</td><td>Opens spend distribution chart</td></tr>
+            <tr><td>Avg Rating</td><td>Average of all non-null <code class="exp-code">rating</code> values</td><td>Opens rating distribution chart</td></tr>
+            <tr><td>Avg Orders</td><td>Average of <code class="exp-code">order_frequency</code> column</td><td>Opens order frequency chart</td></tr>
+            <tr><td>Avg Loyalty Points</td><td>Average of <code class="exp-code">loyalty_points</code> column</td><td>Opens loyalty points chart</td></tr>
+          </tbody>
+        </table>
+
+        <div class="tip-box" style="margin-top:12px;">
+          <strong>💡 For your presentation:</strong> "The 8 KPI cards are built from an array definition. Each card is rendered using <code class="exp-code">.map()</code> — a JavaScript function that loops through the array and creates a Card component for each item. This is a key React pattern: define data → loop → render."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 8 – AI INSIGHTS
+  ═══════════════════════════════════════════ -->
+  <div id="s8">
+    <div class="section-title st-purple">8 · AI Insights – Smart Pattern Detection</div>
+    <div class="card">
+      <div class="card-body">
+        <p>The <strong>AI Insights</strong> tab doesn't call an external AI API — instead, it applies <em>statistical rules</em> to the dataset to discover actionable patterns. Four computed values power these insights:</p>
+
+        <table>
+          <thead><tr><th>Variable</th><th>Formula (simplified)</th><th>Insight Generated</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="exp-code">lowRatingChurnRate</code></td>
+              <td>(Churned customers with rating &lt; 2) ÷ (All customers with rating &lt; 2) × 100</td>
+              <td>"Customers with &lt;2 rating have X% churn probability"</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">delayedChurnRate</code></td>
+              <td>Avg churn rate for late deliveries ÷ Avg churn rate for on-time deliveries</td>
+              <td>"Delayed deliveries lead to X× higher churn rate"</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">highSpendRetention</code></td>
+              <td>(Active customers spending ₹75K+) ÷ (All customers spending ₹75K+) × 100</td>
+              <td>"High spenders (₹75K+) have X% retention rate"</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">topChurnCity</code></td>
+              <td>Sort cities by <code class="exp-code">inactive</code> count descending, take first</td>
+              <td>"[City] is the city with highest number of churned customers"</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="info-box" style="margin-top:12px;">
+          <strong>📣 Key point for your guide:</strong> These insights are <strong>dynamic</strong> — they update automatically if a different CSV is uploaded. This simulates data-driven AI reporting. The insights are derived by applying statistical aggregation on the real dataset, not hardcoded strings.
+        </div>
+
+        <h4 style="margin-top:14px;">📌 How the insight cards are rendered</h4>
+        <div class="code"><span class="kw">const</span> aiInsights = [
+  {
+    icon: Star, color: <span class="st">'text-amber-500'</span>, bg: <span class="st">'bg-amber-50 border-amber-200'</span>,
+    title: `Customers with &lt; 2 rating have ${lowRatingChurnRate}% churn probability`,
+    detail: <span class="st">'Low satisfaction strongly predicts churn...'</span>,
+    action: <span class="st">'Review low-rated orders and identify restaurant issues.'</span>,
+  },
+  <span class="cm">// ... 4 more insight objects</span>
+];
+
+<span class="cm">// Rendered as:</span>
+{aiInsights.<span class="fn">map</span>((insight, i) => (
+  &lt;<span class="fn">Card</span> className={insight.bg}&gt;
+    &lt;<span class="fn">insight.icon</span> className={insight.color} /&gt;
+    &lt;p&gt;{insight.title}&lt;/p&gt;
+    &lt;p&gt;{insight.detail}&lt;/p&gt;
+    &lt;p&gt;💡 {insight.action}&lt;/p&gt;
+  &lt;/<span class="fn">Card</span>&gt;
+))}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 9 – UI STRUCTURE
+  ═══════════════════════════════════════════ -->
+  <div id="s9">
+    <div class="section-title st-slate">9 · UI Structure – Navigation, Sidebar & Tabs</div>
+    <div class="card">
+      <div class="card-body">
+        <p>The dashboard UI is divided into three structural zones:</p>
+
+        <div class="grid-3" style="margin-top:12px;">
+          <div class="mini-card" style="border-color:#bfdbfe;text-align:center;">
+            <h4 style="color:#1d4ed8;">① Top Navigation Bar</h4>
+            <p>Sticky header at the top · Logo · AI Chatbot button · Logout button · Hamburger menu icon (mobile)</p>
+          </div>
+          <div class="mini-card" style="border-color:#bbf7d0;text-align:center;">
+            <h4 style="color:#15803d;">② Left Sidebar</h4>
+            <p>6 navigation items · Hides on mobile (shows via hamburger button) · Active tab highlighted in blue</p>
+          </div>
+          <div class="mini-card" style="border-color:#e9d5ff;text-align:center;">
+            <h4 style="color:#7e22ce;">③ Main Content Area</h4>
+            <p>The area to the right of the sidebar · Changes content based on <code class="exp-code">activeTab</code> state</p>
+          </div>
+        </div>
+
+        <h4 style="margin-top:18px;">📌 How the Sidebar Works</h4>
+        <div class="code"><span class="kw">const</span> sidebarItems = [
+  { id: <span class="st">'overview'</span>,  icon: LayoutDashboard, label: <span class="st">'Overview'</span> },
+  { id: <span class="st">'eda'</span>,       icon: BarChart3,        label: <span class="st">'EDA &amp; Charts'</span> },
+  { id: <span class="st">'predict'</span>,   icon: Target,           label: <span class="st">'Predict Churn'</span> },
+  { id: <span class="st">'insights'</span>,  icon: Brain,            label: <span class="st">'AI Insights'</span> },
+  { id: <span class="st">'data'</span>,      icon: ClipboardList,    label: <span class="st">'Dataset'</span> },
+  { id: <span class="st">'reports'</span>,   icon: FileBarChart2,    label: <span class="st">'Reports'</span> },
+];
+
+<span class="cm">// Each button:</span>
+&lt;button
+  onClick={() => setActiveTab(item.id)}           <span class="cm">// Updates active tab</span>
+  className={activeTab === item.id
+    ? <span class="st">'bg-primary text-white'</span>               <span class="cm">// Highlight if active</span>
+    : <span class="st">'text-muted-foreground hover:bg-muted'</span>  <span class="cm">// Normal style</span>
+  }
+&gt;</div>
+
+        <h4 style="margin-top:14px;">📌 Mobile Sidebar Behaviour</h4>
+        <p>On small screens (<strong>below 768px</strong>), the sidebar is hidden off-screen by default (<code class="exp-code">-translate-x-full</code> CSS class). When the hamburger menu icon is tapped, <code class="exp-code">setSidebarOpen(true)</code> adds <code class="exp-code">translate-x-0</code> which slides it in. A dark overlay covers the rest of the page, and clicking it closes the sidebar.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 10 – EACH TAB EXPLAINED
+  ═══════════════════════════════════════════ -->
+  <div id="s10">
+    <div class="section-title st-blue">10 · Each Tab Explained (6 Sections)</div>
+
+    <!-- OVERVIEW TAB -->
+    <div class="card">
+      <div class="card-header">
+        <span class="num-badge">1</span>
+        <div>
+          <h3>Overview Tab</h3>
+          <p style="font-size:12px;color:#64748b;">The landing section — first thing user sees after login</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Contains 3 sub-sections stacked vertically:</p>
+        <ul style="margin-top:10px;">
+          <li><strong>8 KPI Summary Cards</strong> — at the top, showing total customers, churn rate, etc.</li>
+          <li><strong>2 Highlight Banners</strong> — large cards for "Customers Retained" (green) and "Customers Churned" (red). Clicking them navigates to the Dataset tab pre-filtered.</li>
+          <li><strong>4 Quick Navigation Cards</strong> — links directly to EDA, Predict, Insights, and Reports tabs. Each has a coloured icon and description.</li>
+        </ul>
+        <div class="tip-box" style="margin-top:10px;">
+          The entire Overview section is wrapped in <code class="exp-code">&lt;motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}}&gt;</code> — this is the Framer Motion library providing the <strong>fade-in + slide-up animation</strong> when the tab becomes active.
+        </div>
+      </div>
+    </div>
+
+    <!-- EDA TAB -->
+    <div class="card">
+      <div class="card-header">
+        <span class="num-badge green">2</span>
+        <div>
+          <h3>EDA & Charts Tab</h3>
+          <p style="font-size:12px;color:#64748b;">Exploratory Data Analysis — visual analysis of the dataset</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="code">{activeTab === <span class="st">'eda'</span> && (
+  &lt;<span class="fn">ChurnCharts</span> stats={stats} /&gt;
+)}</div>
+        <p style="margin-top:10px;">This tab <strong>delegates entirely</strong> to the <code class="exp-code">ChurnCharts</code> component. It passes the <code class="exp-code">stats</code> object as a prop. ChurnCharts then renders 12+ charts including:</p>
+        <ul style="margin-top:8px;">
+          <li>Active vs Churned Pie chart</li>
+          <li>Churn by City (grouped bar)</li>
+          <li>Churn by Age Group</li>
+          <li>Food Category Distribution</li>
+          <li>Payment Method Distribution</li>
+          <li>Delivery Status Impact</li>
+          <li>Top Restaurants by Orders</li>
+          <li>Gender Distribution (Radar)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PREDICT TAB -->
+    <div class="card">
+      <div class="card-header">
+        <span class="num-badge purple">3</span>
+        <div>
+          <h3>Predict Churn Tab</h3>
+          <p style="font-size:12px;color:#64748b;">AI-powered real-time churn risk prediction for a single customer</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="code">{activeTab === <span class="st">'predict'</span> && (
+  &lt;<span class="fn">PredictionForm</span> /&gt;
+)}</div>
+        <h4 style="margin-top:10px;">How PredictionForm works:</h4>
+        <ol style="margin-top:8px;">
+          <li>User fills in customer attributes: rating, order frequency, spend, loyalty points, delivery status, payment method</li>
+          <li>On submit, calls <code class="exp-code">predictChurn()</code> from <code class="exp-code">dataset.ts</code> — a <strong>rule-based scoring algorithm</strong></li>
+          <li>The algorithm assigns risk points based on thresholds (e.g., rating &lt; 2.5 = high risk points)</li>
+          <li>Outputs a churn probability % and a risk level: <span class="badge badge-red">HIGH</span> / <span class="badge badge-orange">MEDIUM</span> / <span class="badge badge-green">LOW</span></li>
+          <li>A <strong>circular gauge</strong> (SVG-based) fills up to show the risk %</li>
+          <li>Recommendations are shown explaining why the customer is at risk</li>
+          <li>Prediction results are <strong>saved to Supabase</strong> database for future reference</li>
+        </ol>
+        <div class="note-box" style="margin-top:10px;">
+          The prediction logic is a <strong>deterministic ML-like algorithm</strong> — not a neural network, but a hand-crafted weighted scoring model based on domain knowledge of churn factors. This makes it interpretable and fast.
+        </div>
+      </div>
+    </div>
+
+    <!-- INSIGHTS TAB -->
+    <div class="card">
+      <div class="card-header">
+        <span class="num-badge orange">4</span>
+        <div>
+          <h3>AI Insights Tab</h3>
+          <p style="font-size:12px;color:#64748b;">Data-driven patterns with actionable business recommendations</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Shows 5 insight cards (explained in Section 8) and a <strong>KPI grid</strong> at the bottom with:</p>
+        <div class="grid-2" style="margin-top:10px;">
+          <div class="mini-card">
+            <h4>Retention Rate</h4>
+            <p><code class="exp-code">100 - churnRate</code> → shown in green with ↑ arrow</p>
+          </div>
+          <div class="mini-card">
+            <h4>Churn Rate</h4>
+            <p>Direct from <code class="exp-code">stats.churnRate</code> → shown in red with ↓ arrow</p>
+          </div>
+          <div class="mini-card">
+            <h4>Avg Rating</h4>
+            <p><code class="exp-code">stats.avgRating.toFixed(2)</code> → shows star icon</p>
+          </div>
+          <div class="mini-card">
+            <h4>Revenue at Risk</h4>
+            <p><code class="exp-code">totalSpendRupees × churnRate / 100</code> → in millions (₹M)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATASET TAB -->
+    <div class="card">
+      <div class="card-header">
+        <span class="num-badge" style="background:#14b8a6;">5</span>
+        <div>
+          <h3>Dataset Tab</h3>
+          <p style="font-size:12px;color:#64748b;">View & explore raw customer data; import custom CSV</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Allows users to:</p>
+        <ul style="margin-top:8px;">
+          <li><strong>Import a CSV</strong> — upload their own customer data (see Section 6)</li>
+          <li><strong>Filter</strong> the table by All / Active / Churned using pill-shaped buttons</li>
+          <li><strong>View up to 1,000 rows</strong> in a scrollable, sticky-header table</li>
+          <li>See all columns: ID, Gender, Age, City, Orders, Price, Rating, Status (Active/Inactive), Delivery Status</li>
+        </ul>
+        <div class="warn-box" style="margin-top:10px;">
+          <strong>Before import:</strong> A placeholder with an Upload icon is shown with a call-to-action button. The table is not shown yet. This is controlled by checking <code class="exp-code">if (!importedData)</code>.
+        </div>
+        <p style="margin-top:8px;">The <strong>Status column</strong> applies a coloured badge: green for Active, red for Inactive. The price column multiplies the stored USD price by 83 to show it in Indian Rupees.</p>
+      </div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div class="card">
+      <div class="card-header">
+        <span class="num-badge" style="background:#0d9488;">6</span>
+        <div>
+          <h3>Reports Tab</h3>
+          <p style="font-size:12px;color:#64748b;">Executive summary, city churn, delivery breakdown & recommendations</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>The Reports tab generates a <strong>printable business report</strong> with 4 cards:</p>
+        <table>
+          <thead><tr><th>Report Section</th><th>Content</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Executive Summary</td>
+              <td>4 metric boxes (Total, Active, Churned, Churn Rate) + 6 detailed stats (Avg Rating, Avg Spend, Revenue at Risk, etc.)</td>
+            </tr>
+            <tr>
+              <td>Top 5 Cities by Churn</td>
+              <td>Horizontal progress bars showing churn % per city, sorted highest to lowest</td>
+            </tr>
+            <tr>
+              <td>Delivery Status Breakdown</td>
+              <td>Table: each delivery status type with order count, active/churned split, churn %, and revenue contribution</td>
+            </tr>
+            <tr>
+              <td>Top Recommendations</td>
+              <td>5 numbered actionable items (e.g., "Target customers with rating &lt; 2.5 with discount campaigns")</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="tip-box" style="margin-top:10px;">
+          The "Export / Print" button calls <code class="exp-code">window.print()</code> — the browser's built-in print function. The user can then choose "Save as PDF" from the print dialog. The dashboard uses CSS <code class="exp-code">@media print</code> rules to make the output clean.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 11 – CARD MODAL
+  ═══════════════════════════════════════════ -->
+  <div id="s11">
+    <div class="section-title st-red">11 · Card Detail Modal – Click-to-Zoom Charts</div>
+    <div class="card">
+      <div class="card-body">
+        <p>When a user clicks any of the 8 KPI summary cards, a <strong>popup modal</strong> appears with a detailed chart. This is implemented using <code class="exp-code">AnimatePresence</code> from Framer Motion for smooth transitions.</p>
+
+        <h4 style="margin-top:14px;">How it works:</h4>
+        <div class="flow" style="flex-wrap:wrap;">
+          <div class="flow-box">Click Card (e.g., "Avg Rating")</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box orange"><code>setSelectedCard("Avg Rating")</code></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box green"><code>selectedCard !== null</code></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box purple">Lookup <code>cardChartMap["Avg Rating"]</code></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box">Render Modal with chart</div>
+        </div>
+
+        <h4 style="margin-top:16px;">The cardChartMap Object</h4>
+        <p>This is a JavaScript object where each key is a card's label and each value contains the modal title, description, and a pre-built chart component:</p>
+        <div class="code"><span class="kw">const</span> cardChartMap = {
+  <span class="st">'Avg Rating'</span>: {
+    title: <span class="st">'Rating Distribution'</span>,
+    description: <span class="st">'Star ratings given by active vs churned customers'</span>,
+    chart: (
+      &lt;<span class="fn">BarChart</span> data={ratingBinData}&gt;
+        &lt;<span class="fn">Bar</span> dataKey=<span class="st">"Active"</span>  fill={COLORS_ACT} /&gt;   <span class="cm">// green bars</span>
+        &lt;<span class="fn">Bar</span> dataKey=<span class="st">"Churned"</span> fill={COLORS_CHR} /&gt;   <span class="cm">// red bars</span>
+      &lt;/<span class="fn">BarChart</span>&gt;
+    ),
+  },
+  <span class="cm">// ... 7 more entries</span>
+};</div>
+
+        <h4 style="margin-top:16px;">Modal Anatomy</h4>
+        <table>
+          <thead><tr><th>Part</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>Dark overlay</td><td>Semi-transparent black backdrop; clicking it closes the modal by setting <code class="exp-code">selectedCard = null</code></td></tr>
+            <tr><td>Modal box</td><td>White card with <code class="exp-code">max-w-2xl</code> width, max 90% viewport height, scrollable</td></tr>
+            <tr><td>Header</td><td>Icon, title, description, and X close button</td></tr>
+            <tr><td>Value badge</td><td>Shows the current KPI value (e.g., "4.23 Avg Rating")</td></tr>
+            <tr><td>Chart area</td><td>The Recharts component from <code class="exp-code">cardChartMap</code></td></tr>
+            <tr><td>Footer buttons</td><td>"View Full Analysis" (navigates to relevant tab) and "Close"</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code" style="margin-top:10px;"><span class="cm">// Animation config — spring physics for realistic feel</span>
+initial={{ opacity: 0, scale: 0.92, y: 30 }}
+animate={{ opacity: 1, scale: 1,    y: 0  }}
+exit   ={{ opacity: 0, scale: 0.92, y: 30 }}
+transition={{ type: <span class="st">'spring'</span>, stiffness: 300, damping: 28 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 12 – FULL FLOW DIAGRAM
+  ═══════════════════════════════════════════ -->
+  <div id="s12" class="page-break">
+    <div class="section-title st-green">12 · Full Code Flow Diagram</div>
+    <div class="card">
+      <div class="card-body">
+        <p>This diagram shows the complete data and rendering flow of DashboardPage.tsx from top to bottom:</p>
+
+        <table style="margin-top:16px;font-size:13px;">
+          <thead>
+            <tr>
+              <th style="width:30%;">Code Block</th>
+              <th>Purpose</th>
+              <th>Output</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#eff6ff;">
+              <td><strong>1. Imports</strong> (lines 1–24)</td>
+              <td>Load React, libraries, icons, chart components, utilities</td>
+              <td>All tools available in this file</td>
+            </tr>
+            <tr>
+              <td><strong>2. State declarations</strong> (lines 26–37)</td>
+              <td>Define all reactive variables the component needs</td>
+              <td>Memory slots: data, stats, loading, activeTab…</td>
+            </tr>
+            <tr style="background:#f0fdf4;">
+              <td><strong>3. useEffect</strong> (lines 39–44)</td>
+              <td>On mount: fetch CSV → process → update state</td>
+              <td>data[] and stats object populated</td>
+            </tr>
+            <tr>
+              <td><strong>4. Loading guard</strong> (lines 46–54)</td>
+              <td>Show spinner while data not ready; early return</td>
+              <td>Loading screen or passes through to render</td>
+            </tr>
+            <tr style="background:#faf5ff;">
+              <td><strong>5. Chart data prep</strong> (lines 61–118)</td>
+              <td>Compute binned arrays for each chart from stats</td>
+              <td>cityChurnData, spendBinData, ratingBinData…</td>
+            </tr>
+            <tr>
+              <td><strong>6. cardChartMap</strong> (lines 120–250)</td>
+              <td>Define chart component for each KPI card popup</td>
+              <td>Object mapping card label → modal content</td>
+            </tr>
+            <tr style="background:#fff7ed;">
+              <td><strong>7. importCSV()</strong> (lines 252–280)</td>
+              <td>Handle user-uploaded CSV: parse, validate, update state</td>
+              <td>New data[] and stats; importStatus message</td>
+            </tr>
+            <tr>
+              <td><strong>8. summaryCards[]</strong> (lines 282–293)</td>
+              <td>Define the 8 KPI card configurations</td>
+              <td>Array of {icon, label, value, color, tabAction}</td>
+            </tr>
+            <tr style="background:#fef2f2;">
+              <td><strong>9. aiInsights[]</strong> (lines 295–360)</td>
+              <td>Compute insight stats + define 5 insight card configs</td>
+              <td>Array of insight objects with title/detail/action</td>
+            </tr>
+            <tr>
+              <td><strong>10. sidebarItems[]</strong> (lines 362–370)</td>
+              <td>Define the 6 navigation items for the sidebar</td>
+              <td>Array of {id, icon, label}</td>
+            </tr>
+            <tr style="background:#eff6ff;">
+              <td><strong>11. return() — Top Nav</strong></td>
+              <td>Render sticky top navigation bar</td>
+              <td>Logo, AI Chatbot button, Logout button</td>
+            </tr>
+            <tr>
+              <td><strong>12. return() — Sidebar</strong></td>
+              <td>Render left sidebar with navigation buttons</td>
+              <td>Highlighted active tab, mobile slide behaviour</td>
+            </tr>
+            <tr style="background:#f0fdf4;">
+              <td><strong>13. return() — Main Content</strong></td>
+              <td>Conditional rendering: show only the activeTab's content</td>
+              <td>One of 6 tab sections visible at a time</td>
+            </tr>
+            <tr>
+              <td><strong>14. AnimatePresence — Modal</strong></td>
+              <td>Conditionally render chart popup if selectedCard is set</td>
+              <td>Animated modal with chart + navigation buttons</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 13 – QUICK REFERENCE
+  ═══════════════════════════════════════════ -->
+  <div id="s13">
+    <div class="section-title st-orange">13 · Quick-Reference for Presentation</div>
+    <div class="card">
+      <div class="card-body">
+
+        <h3 style="margin-bottom:14px;">🎯 How to explain this project to your guide in 2 minutes</h3>
+
+        <div class="info-box">
+          <strong>Opening line:</strong> "Our project FoodRetainAI is a web application that helps food delivery businesses identify and prevent customer churn using data analytics and AI predictions."
+        </div>
+
+        <br/>
+
+        <table>
+          <thead><tr><th>If asked about…</th><th>Say this</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>What is DashboardPage.tsx?</strong></td>
+              <td>It is the main page of the application. It is a single React component that loads a customer dataset, computes statistics, and renders an interactive 6-tab analytics dashboard with charts, predictions, and reports.</td>
+            </tr>
+            <tr>
+              <td><strong>What tech stack is used?</strong></td>
+              <td>React 18 with TypeScript (TSX), Vite build tool, Tailwind CSS for styling, Recharts for charts, Framer Motion for animations, PapaParse for CSV parsing, Supabase as the backend database.</td>
+            </tr>
+            <tr>
+              <td><strong>How does data flow work?</strong></td>
+              <td>On page load, useEffect calls loadDataset() which fetches a CSV file. PapaParse converts it to an array of objects. computeStats() calculates KPIs. These are stored in React state. React re-renders the charts whenever state changes.</td>
+            </tr>
+            <tr>
+              <td><strong>What is churn prediction?</strong></td>
+              <td>A user fills in customer attributes (rating, delivery status, spend, etc.) in the Predict Churn form. A rule-based algorithm scores these inputs using weighted thresholds to produce a churn probability % and risk level (LOW/MEDIUM/HIGH).</td>
+            </tr>
+            <tr>
+              <td><strong>How are charts built?</strong></td>
+              <td>Using the Recharts library. Data is prepared into arrays of objects (e.g., [{range: "1-5★", Active: 200, Churned: 80}]). These arrays are passed to Recharts components like &lt;BarChart&gt;, &lt;PieChart&gt;, &lt;LineChart&gt; which render SVG charts automatically.</td>
+            </tr>
+            <tr>
+              <td><strong>How does CSV import work?</strong></td>
+              <td>The user clicks "Import CSV". A hidden file input opens. When a file is selected, the browser FileReader reads it. PapaParse parses the CSV. The data is validated and cleaned by preprocessRecords(). The entire dashboard updates automatically with the new data.</td>
+            </tr>
+            <tr>
+              <td><strong>What are the AI Insights?</strong></td>
+              <td>Statistical patterns computed from the dataset — for example, the churn rate of customers with rating &lt; 2, the ratio of churn from delayed vs on-time deliveries, retention rate of high spenders. These are data-driven insights, not hardcoded values.</td>
+            </tr>
+            <tr>
+              <td><strong>How is conditional rendering done?</strong></td>
+              <td>Using JavaScript's && operator inside JSX. For example: {activeTab === 'overview' && (&lt;OverviewContent /&gt;)}. Only the matching tab renders; others do not exist in the DOM, keeping performance efficient.</td>
+            </tr>
+            <tr>
+              <td><strong>How are animations added?</strong></td>
+              <td>Framer Motion's &lt;motion.div&gt; component wraps each tab content. initial={{opacity:0, y:10}} sets the starting state (invisible, shifted down). animate={{opacity:1, y:0}} is the target state. Framer Motion interpolates between them automatically.</td>
+            </tr>
+            <tr>
+              <td><strong>How does authentication work?</strong></td>
+              <td>The signOut() function from localAuth.ts clears the user session. The Logout button calls signOut() then navigates to the home page using useNavigate(). Protected routes check for session tokens before rendering the dashboard.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin:20px 0 12px;">📂 File Dependency Map</h3>
+        <table>
+          <thead><tr><th>File</th><th>Role in the Project</th><th>Used by DashboardPage for</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code class="exp-code">src/lib/dataset.ts</code></td>
+              <td>Data engine — loads, cleans, and computes stats from CSV</td>
+              <td>loadDataset(), computeStats(), preprocessRecords(), predictChurn()</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">src/lib/localAuth.ts</code></td>
+              <td>Authentication — session management, login/logout</td>
+              <td>signOut() on logout button click</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">src/components/ChurnCharts.tsx</code></td>
+              <td>12+ chart components for deep EDA analysis</td>
+              <td>Rendered in the EDA & Charts tab</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">src/components/PredictionForm.tsx</code></td>
+              <td>Customer attribute input form + ML-like risk scoring</td>
+              <td>Rendered in the Predict Churn tab</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">public/data/dataset.csv</code></td>
+              <td>The actual customer dataset (5,000+ records)</td>
+              <td>Fetched and parsed on page load</td>
+            </tr>
+            <tr>
+              <td><code class="exp-code">src/integrations/supabase/client.ts</code></td>
+              <td>Database connection to Supabase (PostgreSQL)</td>
+              <td>Saving prediction results from PredictionForm</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin:20px 0 12px;">🔑 Key React Concepts Used in This File</h3>
+        <div class="grid-3">
+          <div class="mini-card" style="border-color:#bfdbfe;">
+            <h4>useState</h4>
+            <p>Reactive memory. 10 variables hold all UI state. Changing them triggers re-render.</p>
+          </div>
+          <div class="mini-card" style="border-color:#bbf7d0;">
+            <h4>useEffect</h4>
+            <p>Side effect hook. Runs once on mount to load the dataset asynchronously.</p>
+          </div>
+          <div class="mini-card" style="border-color:#e9d5ff;">
+            <h4>useRef</h4>
+            <p>DOM references. Used to programmatically scroll to tabs and trigger file input clicks.</p>
+          </div>
+          <div class="mini-card" style="border-color:#fed7aa;">
+            <h4>Conditional Rendering</h4>
+            <p>&&-based pattern shows only one tab at a time, keeping the DOM lean.</p>
+          </div>
+          <div class="mini-card" style="border-color:#fca5a5;">
+            <h4>Array.map()</h4>
+            <p>Used extensively to loop over data arrays and render lists of components.</p>
+          </div>
+          <div class="mini-card" style="border-color:#99f6e4;">
+            <h4>Props</h4>
+            <p>stats object passed as prop to ChurnCharts; PredictionForm is self-contained.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center;padding:30px 0 20px;color:#94a3b8;font-size:12px;">
+    <hr style="margin-bottom:20px;" />
+    <p><strong>FoodRetainAI</strong> — Customer Churn Prediction & Retention Analytics Platform</p>
+    <p style="margin-top:4px;">DashboardPage.tsx Code Explanation Document · Prepared for College Internal Presentation</p>
+    <p style="margin-top:4px;">Tech Stack: React 18 · TypeScript · Vite · Tailwind CSS · Recharts · Framer Motion · Supabase</p>
+  </div>
+
+</div>
+
+</body>
+</html>
