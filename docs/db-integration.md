@@ -184,25 +184,22 @@ VITE_SUPABASE_URL="https://uogfbedhjmcuwehahknh.supabase.co"
 VITE_SUPABASE_PUBLISHABLE_KEY="<anon key>"
 GEMINI_API_KEY="<gemini key>"
 SUPABASE_SERVICE_ROLE_KEY="<service role key>"
+RESEND_API_KEY="<resend key>"
 ```
 
-Set these as **Supabase Edge Function secrets** (via Dashboard → Edge Functions → Secrets):
+Keep `GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `RESEND_API_KEY` non-`VITE_` so they are not exposed to the browser.
 
-```
-GEMINI_API_KEY=<your Gemini key>
-SUPABASE_SERVICE_ROLE_KEY=<your service role key>
-RESEND_API_KEY=<your Resend key>
-```
+For local function serving, point the Supabase CLI at the root `.env`:
 
-Keep `GEMINI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` non-`VITE_` so they are not exposed to the browser.
+```bash
+supabase functions serve <function-name> --env-file .env
+```
 
 For hosted functions, sync the root `.env` values with:
 
 ```bash
 supabase secrets set --env-file .env --project-ref uogfbedhjmcuwehahknh
 ```
-
-`supabase/functions/.env` is optional for local `supabase functions serve ...` workflows.
 
 ---
 
